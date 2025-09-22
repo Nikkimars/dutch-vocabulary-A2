@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dutch Vocabulary Learning (A2 Level)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 25px;
+            background: #f0f0f0;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .word-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            min-height: 150px;
+        }
+
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .word-card.flipped {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .category-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .word-card.flipped .category-tag {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .dutch-word {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .word-card.flipped .dutch-word {
+            color: white;
+        }
+
+        .english-meaning {
+            color: #666;
+            font-size: 1.1em;
+            display: none;
+        }
+
+        .word-card.flipped .english-meaning {
+            display: block;
+            color: white;
+        }
+
+        .click-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .word-card.flipped .click-hint {
+            display: none;
+        }
+
+        .stats {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stats-item {
+            display: inline-block;
+            margin: 0 20px;
+        }
+
+        .stats-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stats-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dutch Vocabulary Learning</h1>
+            <div class="subtitle">A2 Level - Click cards to reveal English meanings</div>
+        </header>
+
+        <div class="stats">
+            <div class="stats-item">
+                <div class="stats-number" id="totalWords">0</div>
+                <div class="stats-label">Total Words</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-number" id="learnedWords">0</div>
+                <div class="stats-label">Learned</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-number" id="progress">0%</div>
+                <div class="stats-label">Progress</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="all">All Words</button>
+                <button class="filter-btn" data-category="general">General</button>
+                <button class="filter-btn" data-category="verbs">Verbs</button>
+                <button class="filter-btn" data-category="nouns">Nouns</button>
+                <button class="filter-btn" data-category="learning">Learning</button>
+                <button class="filter-btn" data-category="media">Media</button>
+                <button class="filter-btn" data-category="technology">Technology</button>
+            </div>
+            <input type="text" class="search-box" placeholder="Search Dutch or English words...">
+        </div>
+
+        <div class="cards-container" id="cardsContainer">
+        </div>
+    </div>
+
+    <script>
+        const vocabulary = [
+            // General Words
+            {dutch: "woorden", english: "words", category: "nouns"},
+            {dutch: "leren", english: "to learn", category: "verbs"},
+            {dutch: "herhalen", english: "to repeat", category: "verbs"},
+            {dutch: "oefenen", english: "to practice/exercise", category: "verbs"},
+            {dutch: "maken", english: "to make/create", category: "verbs"},
+            {dutch: "lijst", english: "list", category: "nouns"},
+            {dutch: "eerst", english: "first", category: "general"},
+            {dutch: "zelf", english: "yourself/self", category: "general"},
+            {dutch: "betaald", english: "paid", category: "general"},
+            {dutch: "ook", english: "also/too", category: "general"},
+            {dutch: "als", english: "as/if", category: "general"},
+
+            // Online/Technology
+            {dutch: "online", english: "online", category: "technology"},
+            {dutch: "woordenboeken", english: "dictionaries", category: "nouns"},
+            {dutch: "woordenboek", english: "dictionary", category: "nouns"},
+            {dutch: "beroemd", english: "famous", category: "general"},
+            {dutch: "meest", english: "most", category: "general"},
+            {dutch: "goede", english: "good", category: "general"},
+            {dutch: "kwaliteit", english: "quality", category: "nouns"},
+
+            // Learning related
+            {dutch: "lezen", english: "to read/reading", category: "verbs"},
+            {dutch: "luisteren", english: "to listen/listening", category: "verbs"},
+            {dutch: "schrijven", english: "to write/writing", category: "verbs"},
+            {dutch: "spreken", english: "to speak/speaking", category: "verbs"},
+            {dutch: "uitspraak", english: "pronunciation", category: "learning"},
+            {dutch: "spelling", english: "spelling", category: "learning"},
+            {dutch: "algemeen", english: "general", category: "general"},
+            {dutch: "woordenschat", english: "vocabulary", category: "learning"},
+
+            // News/Media
+            {dutch: "nieuws", english: "news", category: "media"},
+            {dutch: "nieuwslezer", english: "news reader", category: "media"},
+            {dutch: "artikelen", english: "articles", category: "media"},
+            {dutch: "eigen", english: "own", category: "general"},
+            {dutch: "niveau", english: "level", category: "learning"},
+            {dutch: "kinderen", english: "children", category: "nouns"},
+            {dutch: "jeugd", english: "youth", category: "nouns"},
+            {dutch: "journaal", english: "news bulletin", category: "media"},
+
+            // Video/Content
+            {dutch: "video's", english: "videos", category: "media"},
+            {dutch: "ondertitelde", english: "subtitled", category: "media"},
+            {dutch: "verschillende", english: "various/different", category: "general"},
+            {dutch: "onderwerpen", english: "topics/subjects", category: "nouns"},
+            {dutch: "gemakkelijker", english: "easier", category: "general"},
+            {dutch: "moeilijker", english: "more difficult", category: "general"},
+            {dutch: "oefeningen", english: "exercises", category: "learning"},
+
+            // Music
+            {dutch: "liedjes", english: "songs", category: "media"},
+            {dutch: "lied", english: "song", category: "media"},
+            {dutch: "kiezen", english: "to choose", category: "verbs"},
+            {dutch: "kies", english: "choose", category: "verbs"},
+            {dutch: "spelen", english: "to play", category: "verbs"},
+            {dutch: "speel", english: "play", category: "verbs"},
+            {dutch: "nu", english: "now", category: "general"},
+            {dutch: "luister", english: "listen", category: "verbs"},
+            {dutch: "vul in", english: "fill in", category: "verbs"},
+            {dutch: "ontbrekende", english: "missing", category: "general"},
+
+            // Actions/Verbs
+            {dutch: "verbeteren", english: "to improve", category: "verbs"},
+            {dutch: "door", english: "through/by", category: "general"},
+            {dutch: "spelletjes", english: "games", category: "nouns"},
+            {dutch: "uitleg", english: "explanation", category: "nouns"},
+            {dutch: "lijst met", english: "list with", category: "general"},
+            {dutch: "officiële", english: "official", category: "general"},
+
+            // Descriptive words
+            {dutch: "basis", english: "basic", category: "general"},
+            {dutch: "leerlingen", english: "pupils/students", category: "nouns"},
+            {dutch: "diverse", english: "diverse/various", category: "general"},
+            {dutch: "inhoud", english: "content", category: "nouns"},
+            {dutch: "bovengenoemde", english: "above-mentioned", category: "general"},
+            {dutch: "websites", english: "websites", category: "technology"},
+            {dutch: "gecontroleerd", english: "checked", category: "general"},
+            {dutch: "correctheid", english: "correctness", category: "nouns"},
+
+            // Additional words from context
+            {dutch: "via", english: "via/through", category: "general"},
+            {dutch: "tegen", english: "against/opposite", category: "general"},
+            {dutch: "vice versa", english: "vice versa", category: "general"},
+            {dutch: "universiteit", english: "university", category: "nouns"},
+            {dutch: "selecteer", english: "select", category: "verbs"},
+            {dutch: "kijk", english: "watch/look", category: "verbs"},
+            {dutch: "vandaag", english: "today", category: "general"},
+            {dutch: "morgen", english: "tomorrow", category: "general"},
+            {dutch: "gisteren", english: "yesterday", category: "general"}
+        ];
+
+        let learnedWords = new Set();
+
+        function createWordCard(word) {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.dataset.category = word.category;
+            card.dataset.dutch = word.dutch.toLowerCase();
+            card.dataset.english = word.english.toLowerCase();
+
+            card.innerHTML = `
+                <div class="category-tag">${word.category}</div>
+                <div class="dutch-word">${word.dutch}</div>
+                <div class="english-meaning">${word.english}</div>
+                <div class="click-hint">Click to reveal</div>
+            `;
+
+            card.addEventListener('click', function() {
+                this.classList.toggle('flipped');
+                if (this.classList.contains('flipped')) {
+                    learnedWords.add(word.dutch);
+                    updateStats();
+                }
+            });
+
+            return card;
+        }
+
+        function updateStats() {
+            document.getElementById('totalWords').textContent = vocabulary.length;
+            document.getElementById('learnedWords').textContent = learnedWords.size;
+            const progressPercentage = Math.round((learnedWords.size / vocabulary.length) * 100);
+            document.getElementById('progress').textContent = progressPercentage + '%';
+        }
+
+        function displayWords(words) {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            words.forEach(word => {
+                container.appendChild(createWordCard(word));
+            });
+        }
+
+        function filterWords() {
+            const searchTerm = document.querySelector('.search-box').value.toLowerCase();
+            const activeCategory = document.querySelector('.filter-btn.active').dataset.category;
+
+            let filtered = vocabulary;
+
+            if (activeCategory !== 'all') {
+                filtered = filtered.filter(word => word.category === activeCategory);
+            }
+
+            if (searchTerm) {
+                filtered = filtered.filter(word =>
+                    word.dutch.toLowerCase().includes(searchTerm) ||
+                    word.english.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            displayWords(filtered);
+        }
+
+        // Event listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterWords();
+            });
+        });
+
+        document.querySelector('.search-box').addEventListener('input', filterWords);
+
+        // Shuffle array function
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Initialize
+        const shuffledVocabulary = shuffleArray(vocabulary);
+        displayWords(shuffledVocabulary);
+        updateStats();
+    </script>
+</body>
+</html>
