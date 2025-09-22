@@ -209,8 +209,8 @@
 
         .theme-tag {
             position: absolute;
-            top: 8px;
-            right: 8px;
+            bottom: 8px;
+            left: 8px;
             padding: 3px 8px;
             background: #f0f0f0;
             border-radius: 10px;
@@ -265,6 +265,257 @@
 
         .word-card.flipped .speak-btn:hover {
             background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* 更多按钮样式 */
+        .more-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: #999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .more-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .word-card.flipped .more-btn {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .word-card.flipped .more-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* 详细信息模态框样式 */
+        .detail-modal {
+            width: 700px;
+            max-width: 90vw;
+            height: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #detailContent {
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            padding-right: 10px;
+            /* Firefox滚动条 */
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+        }
+
+        /* 自定义滚动条样式 */
+        #detailContent::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #detailContent::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        #detailContent::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        #detailContent::-webkit-scrollbar-thumb:hover {
+            background: #667eea;
+        }
+
+        /* 选词翻译样式 */
+        .translation-popup {
+            position: fixed;
+            display: none;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            max-width: 300px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .translation-popup.active {
+            display: block;
+        }
+
+        .translation-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        .translation-word {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            padding-right: 40px;
+            margin-right: 5px;
+        }
+
+        .translation-meaning {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .translation-speak {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #667eea;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            line-height: 1;
+        }
+
+        .translation-speak:hover {
+            background: #5a67d8;
+        }
+
+        /* 可选中文本样式 */
+        .selectable-text {
+            user-select: text;
+            cursor: text;
+        }
+
+        .selectable-text::selection {
+            background: #b4d5ff;
+            color: #000;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .detail-word {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .detail-pronunciation {
+            font-size: 1.2em;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .detail-meaning {
+            font-size: 1.4em;
+            color: #555;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section h3 {
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e8e8e8;
+            padding-bottom: 8px;
+        }
+
+        .detail-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .detail-tag {
+            padding: 6px 12px;
+            background: #f5f5f5;
+            border-radius: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .conjugation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .conjugation-table th {
+            background: #f8f8f8;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .conjugation-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .conjugation-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .example-sentence {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 3px solid #667eea;
+        }
+
+        .example-dutch {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .example-english {
+            font-size: 1em;
+            color: #666;
+            font-style: italic;
         }
 
         .english-meaning {
@@ -364,6 +615,15 @@
             .vocabulary-table {
                 font-size: 14px;
             }
+
+            .detail-modal {
+                height: 500px;
+                max-height: 70vh;
+            }
+
+            .detail-word {
+                font-size: 2em;
+            }
         }
 
         /* 模态框样式 */
@@ -395,6 +655,11 @@
             width: 90%;
             position: relative;
             animation: slideIn 0.3s ease;
+        }
+
+        .modal-content.detail-modal {
+            padding: 30px;
+            padding-top: 50px;
         }
 
         .modal-close {
@@ -621,11 +886,28 @@
         </div>
     </div>
 
-    <!-- 模态框 -->
+    <!-- 随机学习模态框 -->
     <div id="randomModal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" id="modalCloseBtn">×</button>
             <div id="randomCardContainer"></div>
+        </div>
+    </div>
+
+    <!-- 详细信息模态框 -->
+    <div id="detailModal" class="modal-overlay" onclick="handleDetailModalClick(event)">
+        <div class="modal-content detail-modal">
+            <button class="modal-close" onclick="closeDetailModal()">×</button>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <!-- 选词翻译弹出框 -->
+    <div id="translationPopup" class="translation-popup">
+        <div class="translation-content">
+            <div class="translation-word"></div>
+            <div class="translation-meaning"></div>
+            <button class="translation-speak" onclick="speakSelection()">🔊</button>
         </div>
     </div>
 
@@ -970,6 +1252,9 @@
             // 初始化键盘导航
             KeyboardNavigation.init();
 
+            // 初始化选词翻译功能
+            SelectionTranslator.init();
+
             extractThemes();
             extractLetters();
 
@@ -1118,6 +1403,7 @@
 
             card.innerHTML = `
                 ${SpeechManager.isSupported() ? '<button class="speak-btn" title="发音">🔊</button>' : ''}
+                <button class="more-btn" title="更多信息">⋯</button>
                 <div class="theme-tag">主题 ${word.theme}</div>
                 <div class="dutch-word">${word.dutch}</div>
                 <div class="english-meaning">${word.english}</div>
@@ -1132,9 +1418,18 @@
                 };
             }
 
+            // 更多按钮事件
+            const moreBtn = card.querySelector('.more-btn');
+            if (moreBtn) {
+                moreBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    showDetailModal(word);
+                };
+            }
+
             card.onclick = function(e) {
-                // 如果点击的是发音按钮，不翻转卡片
-                if (e.target.classList.contains('speak-btn')) return;
+                // 如果点击的是发音按钮或更多按钮，不翻转卡片
+                if (e.target.classList.contains('speak-btn') || e.target.classList.contains('more-btn')) return;
 
                 this.classList.toggle('flipped');
                 if (this.classList.contains('flipped')) {
@@ -1164,6 +1459,997 @@
             });
         }
         
+        // 从多个词典源获取词汇数据
+        async function fetchWiktionaryData(word) {
+            const result = {
+                hasOnlineData: false,
+                wordType: '',
+                conjugations: [],
+                examples: [],
+                etymology: '',
+                relatedWords: [],
+                definitions: []
+            };
+
+            // 策略1: 从Tatoeba获取真实例句
+            try {
+                const tatoebaUrl = `https://tatoeba.org/en/api_v0/search?from=nld&query=${encodeURIComponent(word.dutch)}&to=eng`;
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+
+                const tatoebaResponse = await fetch(proxyUrl + encodeURIComponent(tatoebaUrl));
+                if (tatoebaResponse.ok) {
+                    const tatoebaData = await tatoebaResponse.json();
+
+                    if (tatoebaData && tatoebaData.results) {
+                        // 提取前5个例句
+                        const sentences = tatoebaData.results.slice(0, 5);
+                        for (const sentence of sentences) {
+                            if (sentence.text && sentence.text.toLowerCase().includes(word.dutch.toLowerCase())) {
+                                // 查找翻译
+                                let translation = '';
+                                if (sentence.translations) {
+                                    for (const trans of sentence.translations) {
+                                        if (trans.lang === 'eng') {
+                                            translation = trans.text;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                result.examples.push({
+                                    dutch: sentence.text,
+                                    english: translation || '(Translation not available)'
+                                });
+                                result.hasOnlineData = true;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.log('Tatoeba fetch failed:', err);
+            }
+
+            // 策略2: 从Glosbe词典获取数据
+            try {
+                const glosbeUrl = `https://api.glosbe.com/api/translate/nl/en/${encodeURIComponent(word.dutch)}`;
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+
+                const glosbeResponse = await fetch(proxyUrl + encodeURIComponent(glosbeUrl));
+                if (glosbeResponse.ok) {
+                    const glosbeData = await glosbeResponse.json();
+
+                    if (glosbeData && glosbeData.examples) {
+                        // 获取例句
+                        for (const example of glosbeData.examples.slice(0, 3)) {
+                            if (example.first && example.second) {
+                                result.examples.push({
+                                    dutch: example.first,
+                                    english: example.second
+                                });
+                                result.hasOnlineData = true;
+                            }
+                        }
+                    }
+
+                    // 获取定义
+                    if (glosbeData && glosbeData.tuc) {
+                        for (const tuc of glosbeData.tuc.slice(0, 3)) {
+                            if (tuc.meanings) {
+                                for (const meaning of tuc.meanings) {
+                                    if (meaning.text) {
+                                        result.definitions.push(meaning.text);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.log('Glosbe fetch failed:', err);
+            }
+
+            // 策略3: 从Linguee获取例句（通过网页抓取）
+            try {
+                const lingueeUrl = `https://www.linguee.com/dutch-english/search?source=dutch&query=${encodeURIComponent(word.dutch)}`;
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+
+                const lingueeResponse = await fetch(proxyUrl + encodeURIComponent(lingueeUrl));
+                if (lingueeResponse.ok) {
+                    const html = await lingueeResponse.text();
+
+                    // 简单的HTML解析来获取例句
+                    const exampleRegex = /<span class='tag_s'>([^<]+)<\/span>.*?<span class='tag_t'>([^<]+)<\/span>/g;
+                    let match;
+                    let count = 0;
+
+                    while ((match = exampleRegex.exec(html)) !== null && count < 3) {
+                        if (match[1].toLowerCase().includes(word.dutch.toLowerCase())) {
+                            result.examples.push({
+                                dutch: match[1].trim(),
+                                english: match[2].trim()
+                            });
+                            result.hasOnlineData = true;
+                            count++;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.log('Linguee fetch failed:', err);
+            }
+
+            // 策略4: 生成上下文相关的例句（作为后备）
+            if (result.examples.length === 0) {
+                result.examples = generateContextualExamples(word);
+            }
+
+            // 如果是动词，生成变位
+            if (word.dutch.endsWith('en')) {
+                result.wordType = 'verb';
+                result.conjugations = generateVerbConjugations(word.dutch);
+            }
+
+            return result;
+        }
+
+        // 生成上下文相关的例句
+        function generateContextualExamples(word) {
+            const examples = [];
+
+            // 基于词汇类型生成更真实的例句
+            const templates = {
+                'leren': [
+                    { dutch: 'Ik wil Nederlands leren.', english: 'I want to learn Dutch.' },
+                    { dutch: 'We leren nieuwe woorden elke dag.', english: 'We learn new words every day.' },
+                    { dutch: 'Hij heeft veel geleerd op school.', english: 'He has learned a lot at school.' }
+                ],
+                'maken': [
+                    { dutch: 'Ik ga een lijst maken.', english: 'I am going to make a list.' },
+                    { dutch: 'Ze maakt haar huiswerk.', english: 'She is doing her homework.' },
+                    { dutch: 'We hebben een fout gemaakt.', english: 'We made a mistake.' }
+                ],
+                'nieuws': [
+                    { dutch: 'Heb je het nieuws gezien?', english: 'Did you see the news?' },
+                    { dutch: 'Er is goed nieuws vandaag.', english: 'There is good news today.' },
+                    { dutch: 'Ik lees het nieuws elke ochtend.', english: 'I read the news every morning.' }
+                ],
+                'online': [
+                    { dutch: 'We werken online vandaag.', english: 'We are working online today.' },
+                    { dutch: 'Je kunt het online vinden.', english: 'You can find it online.' },
+                    { dutch: 'Online leren is populair.', english: 'Online learning is popular.' }
+                ],
+                'woorden': [
+                    { dutch: 'Deze woorden zijn moeilijk.', english: 'These words are difficult.' },
+                    { dutch: 'Ik ken veel Nederlandse woorden.', english: 'I know many Dutch words.' },
+                    { dutch: 'Nieuwe woorden leren is leuk.', english: 'Learning new words is fun.' }
+                ]
+            };
+
+            // 如果有预定义的例句，使用它们
+            if (templates[word.dutch]) {
+                return templates[word.dutch];
+            }
+
+            // 否则生成通用例句
+            const genericTemplates = [
+                {
+                    dutch: `Wat betekent "${word.dutch}"?`,
+                    english: `What does "${word.dutch}" mean?`
+                },
+                {
+                    dutch: `Ik gebruik het woord "${word.dutch}" vaak.`,
+                    english: `I use the word "${word.dutch}" often.`
+                },
+                {
+                    dutch: `"${word.dutch}" is een belangrijk woord.`,
+                    english: `"${word.dutch}" is an important word.`
+                }
+            ];
+
+            return genericTemplates;
+        }
+
+        // 生成动词变位表格数据
+        function generateVerbConjugations(verb) {
+            const stem = verb.endsWith('en') ? verb.slice(0, -2) : verb;
+
+            // 返回表格格式的数据
+            return [
+                { person: 'ik', present: stem, past: `${stem}te`, perfect: `heb ge${stem}d` },
+                { person: 'jij/je', present: `${stem}t`, past: `${stem}te`, perfect: `hebt ge${stem}d` },
+                { person: 'hij/zij/het', present: `${stem}t`, past: `${stem}te`, perfect: `heeft ge${stem}d` },
+                { person: 'wij/we', present: `${stem}en`, past: `${stem}ten`, perfect: `hebben ge${stem}d` },
+                { person: 'jullie', present: `${stem}en`, past: `${stem}ten`, perfect: `hebben ge${stem}d` },
+                { person: 'zij/ze', present: `${stem}en`, past: `${stem}ten`, perfect: `hebben ge${stem}d` }
+            ];
+        }
+
+        // 生成名词信息（冠词和复数）
+        function generateNounInfo(noun) {
+            // 简单的规则来判断de/het
+            // 这里使用常见规则，实际应该从词典获取
+            let article = 'de';
+            let plural = '';
+
+            // 一些常见的het词汇
+            const hetWords = ['kind', 'boek', 'huis', 'meisje', 'jongetje', 'ding', 'woord', 'jaar', 'uur', 'land', 'water', 'nieuws', 'journaal', 'niveau', 'onderwerp'];
+
+            if (hetWords.some(word => noun.includes(word))) {
+                article = 'het';
+            }
+
+            // 复数形式规则
+            if (noun.endsWith('e')) {
+                plural = noun + 'n'; // boeke -> boeken
+            } else if (noun.endsWith('el') || noun.endsWith('en') || noun.endsWith('er') || noun.endsWith('em')) {
+                plural = noun + 's'; // artikel -> artikels
+            } else if (noun.endsWith('heid')) {
+                plural = noun.replace(/heid$/, 'heden'); // mogelijkheid -> mogelijkheden
+            } else if (noun.endsWith('s') || noun.endsWith('f')) {
+                plural = noun.slice(0, -1) + 'zen'; // huis -> huizen (simplified)
+            } else {
+                plural = noun + 'en'; // 默认加en
+            }
+
+            return { article, plural };
+        }
+
+        // 显示详细信息模态框
+        async function showDetailModal(word) {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('detailContent');
+
+            // 先显示加载状态
+            modal.classList.add('active');
+            content.innerHTML = `
+                <div style="text-align: center; padding: 50px;">
+                    <div style="font-size: 2em; color: #667eea; margin-bottom: 20px;">⌛</div>
+                    <div style="color: #666;">正在获取详细信息...</div>
+                    <div style="color: #999; font-size: 0.9em; margin-top: 10px;">从Wiktionary查询中...</div>
+                </div>
+            `;
+
+            // 尝试从Wiktionary获取数据
+            let details = await fetchWiktionaryData(word);
+
+            // 如果没有获取到，使用本地生成的数据
+            if (!details || !details.hasOnlineData) {
+                details = getWordDetails(word);
+            }
+
+            // 合并API数据格式
+            let displayData = {
+                pronunciation: details.pronunciation || '',
+                type: details.wordType || details.type || '',
+                gender: details.gender || '',
+                conjugations: details.conjugations || details.conjugation || null,
+                examples: details.examples || [],
+                related: details.relatedWords || details.related || [],
+                etymology: details.etymology || '',
+                hasOnlineData: details.hasOnlineData || false,
+                nounInfo: null
+            };
+
+            // 如果是名词，生成名词信息
+            if (!displayData.conjugations && (displayData.type === 'noun' || !word.dutch.endsWith('en'))) {
+                // 排除明显的动词
+                const verbEndings = ['en', 'eren', 'elen', 'enen'];
+                const isLikelyVerb = verbEndings.some(ending => word.dutch.endsWith(ending));
+
+                if (!isLikelyVerb) {
+                    displayData.nounInfo = generateNounInfo(word.dutch);
+                }
+            }
+
+            // 格式化例句
+            if (displayData.hasOnlineData && displayData.examples.length > 0) {
+                // 如果例句是字符串数组，转换为对象格式
+                displayData.examples = displayData.examples.map(ex => {
+                    if (typeof ex === 'string') {
+                        return {
+                            dutch: ex,
+                            english: '(翻译暂无)'
+                        };
+                    }
+                    return ex;
+                });
+            }
+
+            content.innerHTML = `
+                <div class="detail-header">
+                    <div class="detail-word">${word.dutch}</div>
+                    ${displayData.pronunciation ? `<div class="detail-pronunciation">[${displayData.pronunciation}]</div>` : ''}
+                    <div class="detail-meaning">${word.english}</div>
+                    ${SpeechManager.isSupported() ? `<button class="speak-btn" onclick="SpeechManager.speak('${word.dutch.replace(/'/g, "\\'")}')" style="position: relative; top: auto; left: auto; margin-top: 10px;">🔊 发音</button>` : ''}
+                    ${displayData.hasOnlineData ? '<div style="color: #4CAF50; font-size: 12px; margin-top: 5px;">📚 数据来源：在线词典</div>' : ''}
+                </div>
+
+                <div class="detail-section">
+                    <h3>基本信息</h3>
+                    <div class="detail-info">
+                        <span class="detail-tag">主题 ${word.theme}</span>
+                        ${displayData.type ? `<span class="detail-tag">${displayData.type}</span>` : ''}
+                        ${displayData.gender ? `<span class="detail-tag">${displayData.gender}</span>` : ''}
+                    </div>
+                </div>
+
+                ${displayData.etymology ? `
+                <div class="detail-section">
+                    <h3>词源</h3>
+                    <div style="padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                        ${displayData.etymology}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${displayData.conjugations && displayData.conjugations.length > 0 ? `
+                <div class="detail-section">
+                    <h3>动词变位</h3>
+                    <table class="conjugation-table">
+                        <thead>
+                            <tr>
+                                <th>人称</th>
+                                <th>现在时</th>
+                                <th>过去时</th>
+                                <th>现在完成时</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${displayData.conjugations.map(c => `
+                                <tr>
+                                    <td>${c.person || c.tense || ''}</td>
+                                    <td>${c.present || c.conjugation || '-'}</td>
+                                    <td>${c.past || '-'}</td>
+                                    <td>${c.perfect || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                ` : ''}
+
+                ${displayData.nounInfo ? `
+                <div class="detail-section">
+                    <h3>名词形式</h3>
+                    <table class="conjugation-table">
+                        <thead>
+                            <tr>
+                                <th>冠词</th>
+                                <th>单数</th>
+                                <th>复数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>${displayData.nounInfo.article}</strong></td>
+                                <td>${word.dutch}</td>
+                                <td>${displayData.nounInfo.plural}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 10px; color: #666; font-size: 14px;">
+                        完整形式: <strong>${displayData.nounInfo.article} ${word.dutch}</strong> (单数) | <strong>de ${displayData.nounInfo.plural}</strong> (复数)
+                    </div>
+                </div>
+                ` : ''}
+
+                ${displayData.examples && displayData.examples.length > 0 ? `
+                <div class="detail-section">
+                    <h3>例句</h3>
+                    ${displayData.examples.map(ex => `
+                        <div class="example-sentence">
+                            <div class="example-dutch selectable-text">${typeof ex === 'string' ? ex : ex.dutch}</div>
+                            ${typeof ex === 'object' && ex.english ?
+                                `<div class="example-english selectable-text">${ex.english}</div>` :
+                                ''}
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+
+                ${displayData.related && displayData.related.length > 0 ? `
+                <div class="detail-section">
+                    <h3>相关词汇</h3>
+                    <div class="detail-info">
+                        ${displayData.related.map(r => `<span class="detail-tag">${r}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // 关闭详细信息模态框
+        window.closeDetailModal = function() {
+            const modal = document.getElementById('detailModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // 处理详细信息模态框的点击事件
+        window.handleDetailModalClick = function(event) {
+            // 如果点击的是模态框背景（不是内容区域），则关闭模态框
+            if (event.target === event.currentTarget) {
+                closeDetailModal();
+            }
+        }
+
+        // 添加ESC键关闭详细信息模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                const detailModal = document.getElementById('detailModal');
+                const randomModal = document.getElementById('randomModal');
+
+                // 优先关闭详细信息模态框
+                if (detailModal && detailModal.classList.contains('active')) {
+                    closeDetailModal();
+                    event.preventDefault();
+                }
+                // 如果详细信息模态框没有打开，则关闭随机模态框
+                else if (randomModal && randomModal.classList.contains('active')) {
+                    closeRandomModal();
+                    event.preventDefault();
+                }
+            }
+        });
+
+        // 选词翻译功能
+        const SelectionTranslator = {
+            popup: null,
+            selectedText: '',
+            vocabularyMap: new Map(),
+            translationCache: new Map(), // 缓存翻译结果
+            isLoading: false,
+
+            init() {
+                this.popup = document.getElementById('translationPopup');
+
+                // 构建词汇映射表
+                vocabulary.forEach(word => {
+                    this.vocabularyMap.set(word.dutch.toLowerCase(), word);
+                    // 也添加一些变形
+                    if (word.dutch.endsWith('en')) {
+                        // 动词的一些常见变形
+                        const stem = word.dutch.slice(0, -2);
+                        this.vocabularyMap.set(stem + 't', word); // 第二/三人称单数
+                        this.vocabularyMap.set(stem + 'te', word); // 过去式
+                        this.vocabularyMap.set(stem + 'ten', word); // 过去式复数
+                        this.vocabularyMap.set('ge' + stem + 'd', word); // 过去分词
+                        this.vocabularyMap.set('ge' + stem + 't', word); // 过去分词
+                    }
+                });
+
+                // 添加文本选择事件监听
+                document.addEventListener('mouseup', this.handleSelection.bind(this));
+                document.addEventListener('touchend', this.handleSelection.bind(this));
+
+                // 点击其他地方关闭弹窗
+                document.addEventListener('mousedown', (e) => {
+                    if (!this.popup.contains(e.target)) {
+                        this.hidePopup();
+                    }
+                });
+            },
+
+            // 在线查询词汇
+            async queryOnline(text) {
+                // 先检查缓存
+                if (this.translationCache.has(text.toLowerCase())) {
+                    return this.translationCache.get(text.toLowerCase());
+                }
+
+                try {
+                    // 方法1: 使用Google Translate API (通过代理)
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                    const translateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=nl&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+
+                    const response = await fetch(proxyUrl + encodeURIComponent(translateUrl));
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data[0] && data[0][0] && data[0][0][0]) {
+                            const translation = data[0][0][0];
+                            const result = {
+                                dutch: text,
+                                english: translation,
+                                source: 'online'
+                            };
+                            // 缓存结果
+                            this.translationCache.set(text.toLowerCase(), result);
+                            return result;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Google Translate failed:', error);
+                }
+
+                // 方法2: 使用MyMemory翻译API（免费，无需API密钥）
+                try {
+                    const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=nl|en`;
+
+                    const response = await fetch(myMemoryUrl);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.responseData && data.responseData.translatedText) {
+                            const result = {
+                                dutch: text,
+                                english: data.responseData.translatedText,
+                                source: 'online'
+                            };
+                            // 缓存结果
+                            this.translationCache.set(text.toLowerCase(), result);
+                            return result;
+                        }
+                    }
+                } catch (error) {
+                    console.log('MyMemory failed:', error);
+                }
+
+                // 方法3: 使用LibreTranslate（开源翻译API）
+                try {
+                    const libreUrl = 'https://libretranslate.de/translate';
+                    const response = await fetch(libreUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            q: text,
+                            source: 'nl',
+                            target: 'en',
+                            format: 'text'
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.translatedText) {
+                            const result = {
+                                dutch: text,
+                                english: data.translatedText,
+                                source: 'online'
+                            };
+                            this.translationCache.set(text.toLowerCase(), result);
+                            return result;
+                        }
+                    }
+                } catch (error) {
+                    console.log('LibreTranslate failed:', error);
+                }
+
+                return null;
+            },
+
+            async handleSelection(e) {
+                const selection = window.getSelection();
+                const text = selection.toString().trim();
+
+                if (!text || text.length > 100 || this.isLoading) {  // 允许更长的文本
+                    return;
+                }
+
+                // 查找匹配的词汇
+                const lowerText = text.toLowerCase();
+
+                // 1. 首先尝试本地词汇表精确匹配
+                const exactMatch = this.vocabularyMap.get(lowerText);
+                if (exactMatch) {
+                    this.selectedText = text;
+                    this.showPopup(exactMatch, e);
+                    return;
+                }
+
+                // 2. 如果选中多个词，尝试匹配每个词
+                const words = lowerText.split(/\s+/);
+                if (words.length > 1 && words.length <= 3) {
+                    for (const word of words) {
+                        const match = this.vocabularyMap.get(word);
+                        if (match) {
+                            this.selectedText = word;
+                            this.showPopup(match, e);
+                            return;
+                        }
+                    }
+                }
+
+                // 3. 尝试去除常见的后缀进行匹配（更精确的变形规则）
+                if (words.length === 1) {
+                    const possibleForms = this.getPossibleBaseForms(lowerText);
+                    for (const form of possibleForms) {
+                        const match = this.vocabularyMap.get(form);
+                        if (match) {
+                            this.selectedText = text;
+                            this.showPopup(match, e);
+                            return;
+                        }
+                    }
+                }
+
+                // 4. 如果本地没找到，进行在线查询
+                this.isLoading = true;
+                this.showLoadingPopup(text, e);
+
+                const onlineResult = await this.queryOnline(text);
+                this.isLoading = false;
+
+                if (onlineResult) {
+                    this.selectedText = text;
+                    this.showPopup(onlineResult, e);
+                } else {
+                    // 5. 如果在线查询也失败，尝试本地部分匹配作为最后手段
+                    for (const [key, value] of this.vocabularyMap.entries()) {
+                        const regex = new RegExp(`\\b${key}\\b`, 'i');
+                        if (regex.test(lowerText)) {
+                            this.selectedText = text;
+                            this.showPopup(value, e);
+                            return;
+                        }
+                    }
+
+                    // 显示未找到
+                    this.showNotFound(text, e);
+                }
+            },
+
+            showLoadingPopup(text, event) {
+                const popup = this.popup;
+                const wordEl = popup.querySelector('.translation-word');
+                const meaningEl = popup.querySelector('.translation-meaning');
+
+                wordEl.textContent = text;
+                meaningEl.innerHTML = '<span style="color: #999;">正在查询...</span>';
+
+                this.positionPopup(event);
+                popup.classList.add('active');
+            },
+
+            showNotFound(text, event) {
+                const popup = this.popup;
+                const wordEl = popup.querySelector('.translation-word');
+                const meaningEl = popup.querySelector('.translation-meaning');
+
+                wordEl.textContent = text;
+                meaningEl.innerHTML = '<span style="color: #999;">未找到翻译</span>';
+
+                this.positionPopup(event);
+                popup.classList.add('active');
+            },
+
+            getPossibleBaseForms(word) {
+                const forms = [];
+
+                // 动词变形规则
+                if (word.endsWith('t')) {
+                    forms.push(word.slice(0, -1) + 'en');  // speelt -> spelen
+                }
+                if (word.endsWith('te')) {
+                    forms.push(word.slice(0, -2) + 'en');  // speelde -> spelen
+                }
+                if (word.endsWith('ten')) {
+                    forms.push(word.slice(0, -3) + 'en');  // speelden -> spelen
+                }
+                if (word.startsWith('ge') && word.endsWith('d')) {
+                    forms.push(word.slice(2, -1) + 'en');  // gespeeld -> spelen
+                }
+                if (word.startsWith('ge') && word.endsWith('t')) {
+                    forms.push(word.slice(2, -1) + 'en');  // gemaakt -> maken
+                }
+
+                // 名词复数规则
+                if (word.endsWith('en') && word.length > 3) {
+                    forms.push(word.slice(0, -2));  // woorden -> woord
+                    forms.push(word.slice(0, -1));  // boeken -> boek
+                }
+                if (word.endsWith('s')) {
+                    forms.push(word.slice(0, -1));  // artikels -> artikel
+                }
+
+                // 形容词变化
+                if (word.endsWith('e')) {
+                    forms.push(word.slice(0, -1));  // goede -> goed
+                }
+
+                return forms;
+            },
+
+            showPopup(word, event) {
+                const popup = this.popup;
+                const wordEl = popup.querySelector('.translation-word');
+                const meaningEl = popup.querySelector('.translation-meaning');
+
+                wordEl.textContent = word.dutch;
+
+                // 根据来源显示不同的翻译
+                if (word.source === 'online') {
+                    meaningEl.innerHTML = `${word.english} <span style="color: #4CAF50; font-size: 12px;">📡</span>`;
+                } else {
+                    meaningEl.textContent = word.english;
+                }
+
+                this.positionPopup(event);
+                popup.classList.add('active');
+
+                // 保存当前词汇供发音使用
+                popup.dataset.currentWord = word.dutch;
+            },
+
+            positionPopup(event) {
+                const popup = this.popup;
+
+                // 计算位置
+                let rect;
+                try {
+                    rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
+                } catch (e) {
+                    // 如果没有selection，使用鼠标位置
+                    rect = {
+                        left: event.clientX,
+                        top: event.clientY,
+                        right: event.clientX,
+                        bottom: event.clientY,
+                        width: 0
+                    };
+                }
+
+                let left = rect.left + rect.width / 2;
+                let top = rect.top - 10;
+
+                // 确保弹窗不会超出视口
+                popup.style.display = 'block';
+                const popupRect = popup.getBoundingClientRect();
+
+                left = Math.min(left, window.innerWidth - popupRect.width - 10);
+                left = Math.max(left, 10);
+
+                if (top - popupRect.height < 10) {
+                    top = rect.bottom + 10; // 显示在选中文本下方
+                } else {
+                    top = top - popupRect.height; // 显示在选中文本上方
+                }
+
+                popup.style.left = left + 'px';
+                popup.style.top = top + 'px';
+            },
+
+            hidePopup() {
+                this.popup.classList.remove('active');
+                this.popup.style.display = 'none';
+            }
+        };
+
+        // 发音选中的词汇
+        window.speakSelection = function() {
+            const popup = document.getElementById('translationPopup');
+            const word = popup.dataset.currentWord;
+            if (word && SpeechManager.isSupported()) {
+                SpeechManager.speak(word);
+            }
+        }
+
+        // 获取单词详细信息
+        function getWordDetails(word) {
+            // 基础信息
+            const details = {
+                pronunciation: null,
+                type: null,
+                gender: null,
+                conjugation: null,
+                examples: [],
+                related: []
+            };
+
+            // 更好的例句生成系统
+            const exampleDatabase = {
+                // 动词例句模板
+                verbs: {
+                    'eten': [
+                        { dutch: 'Ik eet een appel voor het ontbijt.', english: 'I eat an apple for breakfast.' },
+                        { dutch: 'We eten vanavond bij mijn ouders.', english: 'We are eating at my parents\' tonight.' },
+                        { dutch: 'Heb je al gegeten?', english: 'Have you eaten yet?' }
+                    ],
+                    'drinken': [
+                        { dutch: 'Ik drink graag koffie in de ochtend.', english: 'I like to drink coffee in the morning.' },
+                        { dutch: 'Wat wil je drinken?', english: 'What would you like to drink?' },
+                        { dutch: 'Hij drinkt nooit alcohol.', english: 'He never drinks alcohol.' }
+                    ],
+                    'lopen': [
+                        { dutch: 'Ik loop elke dag naar het werk.', english: 'I walk to work every day.' },
+                        { dutch: 'De kinderen lopen in het park.', english: 'The children are walking in the park.' },
+                        { dutch: 'Hoe lang moet je lopen?', english: 'How long do you have to walk?' }
+                    ],
+                    'werken': [
+                        { dutch: 'Ik werk vijf dagen per week.', english: 'I work five days a week.' },
+                        { dutch: 'Waar werk je?', english: 'Where do you work?' },
+                        { dutch: 'Ze werkt als lerares.', english: 'She works as a teacher.' }
+                    ],
+                    'wonen': [
+                        { dutch: 'Ik woon in Amsterdam.', english: 'I live in Amsterdam.' },
+                        { dutch: 'Waar woon je?', english: 'Where do you live?' },
+                        { dutch: 'Hij woont hier al tien jaar.', english: 'He has lived here for ten years.' }
+                    ],
+                    'kopen': [
+                        { dutch: 'Ik moet melk kopen.', english: 'I need to buy milk.' },
+                        { dutch: 'Waar heb je dat gekocht?', english: 'Where did you buy that?' },
+                        { dutch: 'Ze koopt altijd biologische producten.', english: 'She always buys organic products.' }
+                    ],
+                    'maken': [
+                        { dutch: 'Ik maak het huiswerk nu.', english: 'I\'m doing the homework now.' },
+                        { dutch: 'Kan je koffie voor me maken?', english: 'Can you make coffee for me?' },
+                        { dutch: 'We maken een taart voor haar verjaardag.', english: 'We\'re making a cake for her birthday.' }
+                    ],
+                    'gaan': [
+                        { dutch: 'Ik ga naar de winkel.', english: 'I\'m going to the shop.' },
+                        { dutch: 'We gaan morgen op vakantie.', english: 'We\'re going on vacation tomorrow.' },
+                        { dutch: 'Ga je mee?', english: 'Are you coming along?' }
+                    ],
+                    'komen': [
+                        { dutch: 'Ik kom uit Nederland.', english: 'I come from the Netherlands.' },
+                        { dutch: 'Wanneer kom je thuis?', english: 'When are you coming home?' },
+                        { dutch: 'Hij komt altijd te laat.', english: 'He always comes late.' }
+                    ],
+                    'hebben': [
+                        { dutch: 'Ik heb twee kinderen.', english: 'I have two children.' },
+                        { dutch: 'Heb je tijd?', english: 'Do you have time?' },
+                        { dutch: 'We hebben honger.', english: 'We are hungry.' }
+                    ],
+                    'zijn': [
+                        { dutch: 'Ik ben student.', english: 'I am a student.' },
+                        { dutch: 'Hij is mijn broer.', english: 'He is my brother.' },
+                        { dutch: 'We zijn thuis.', english: 'We are at home.' }
+                    ],
+                    'zeggen': [
+                        { dutch: 'Wat zeg je?', english: 'What did you say?' },
+                        { dutch: 'Hij zegt altijd de waarheid.', english: 'He always tells the truth.' },
+                        { dutch: 'Ik zeg het nog een keer.', english: 'I\'ll say it again.' }
+                    ],
+                    'vragen': [
+                        { dutch: 'Mag ik je iets vragen?', english: 'May I ask you something?' },
+                        { dutch: 'Hij vraagt om hulp.', english: 'He\'s asking for help.' },
+                        { dutch: 'Waarom vraag je dat?', english: 'Why do you ask that?' }
+                    ],
+                    'beginnen': [
+                        { dutch: 'De les begint om 9 uur.', english: 'The class starts at 9 o\'clock.' },
+                        { dutch: 'Ik begin morgen met mijn nieuwe baan.', english: 'I start my new job tomorrow.' },
+                        { dutch: 'Zullen we beginnen?', english: 'Shall we start?' }
+                    ],
+                    'leren': [
+                        { dutch: 'Ik leer Nederlands.', english: 'I\'m learning Dutch.' },
+                        { dutch: 'Ze leert snel.', english: 'She learns quickly.' },
+                        { dutch: 'Wat heb je vandaag geleerd?', english: 'What did you learn today?' }
+                    ],
+                    'spreken': [
+                        { dutch: 'Spreek je Nederlands?', english: 'Do you speak Dutch?' },
+                        { dutch: 'Ik spreek een beetje Engels.', english: 'I speak a little English.' },
+                        { dutch: 'We spreken morgen verder.', english: 'We\'ll continue talking tomorrow.' }
+                    ],
+                    'default': [
+                        { dutch: 'Ik moet dat {verb}.', english: 'I need to {english}.' },
+                        { dutch: 'Kan je me helpen te {verb}?', english: 'Can you help me to {english}?' },
+                        { dutch: 'We gaan morgen {verb}.', english: 'We are going to {english} tomorrow.' }
+                    ]
+                },
+                // 名词例句模板
+                nouns: {
+                    'default': [
+                        { dutch: 'Waar is {noun}?', english: 'Where is the {english}?' },
+                        { dutch: 'Ik heb een nieuw(e) {noun_clean} nodig.', english: 'I need a new {english}.' },
+                        { dutch: '{noun} is erg belangrijk.', english: 'The {english} is very important.' }
+                    ]
+                },
+                // 形容词例句模板
+                adjectives: {
+                    'default': [
+                        { dutch: 'Dit is heel {adjective}.', english: 'This is very {english}.' },
+                        { dutch: 'Het wordt {adjective}.', english: 'It\'s getting {english}.' },
+                        { dutch: 'Dat is niet zo {adjective}.', english: 'That\'s not so {english}.' }
+                    ]
+                }
+            };
+
+            // 检测词性并生成例句
+            if (word.dutch.endsWith('en')) {
+                details.type = '动词 (werkwoord)';
+
+                // 生成基本的动词变位
+                const stem = word.dutch.slice(0, -2);
+
+                // 更准确的动词变位（处理特殊情况）
+                const isRegular = !['hebben', 'zijn', 'kunnen', 'mogen', 'willen', 'zullen', 'gaan', 'doen'].includes(word.dutch);
+
+                if (isRegular) {
+                    details.conjugation = [
+                        { person: 'ik', present: stem, past: stem + 'te', perfect: 'heb ge' + stem + 'd/t' },
+                        { person: 'jij/je', present: stem + 't', past: stem + 'te', perfect: 'hebt ge' + stem + 'd/t' },
+                        { person: 'hij/zij/het', present: stem + 't', past: stem + 'te', perfect: 'heeft ge' + stem + 'd/t' },
+                        { person: 'wij/we', present: word.dutch, past: stem + 'ten', perfect: 'hebben ge' + stem + 'd/t' },
+                        { person: 'jullie', present: word.dutch, past: stem + 'ten', perfect: 'hebben ge' + stem + 'd/t' },
+                        { person: 'zij/ze', present: word.dutch, past: stem + 'ten', perfect: 'hebben ge' + stem + 'd/t' }
+                    ];
+                }
+
+                // 查找特定动词的例句，如果没有则使用默认模板
+                if (exampleDatabase.verbs[word.dutch]) {
+                    details.examples = exampleDatabase.verbs[word.dutch];
+                } else {
+                    // 使用默认模板
+                    details.examples = exampleDatabase.verbs.default.map(ex => ({
+                        dutch: ex.dutch.replace('{verb}', word.dutch).replace('{verb}', word.dutch),
+                        english: ex.english.replace('{english}', word.english)
+                    }));
+                }
+
+            } else if (word.dutch.startsWith('de ') || word.dutch.startsWith('het ')) {
+                details.type = '名词 (zelfstandig naamwoord)';
+                details.gender = word.dutch.startsWith('de ') ? 'de (通性)' : 'het (中性)';
+
+                const nounClean = word.dutch.replace(/^(de |het )/, '');
+
+                // 使用名词模板
+                details.examples = exampleDatabase.nouns.default.map(ex => ({
+                    dutch: ex.dutch
+                        .replace('{noun}', word.dutch)
+                        .replace('{noun_clean}', nounClean),
+                    english: ex.english.replace('{english}', word.english)
+                }));
+
+            } else {
+                // 其他词性检测
+                const dutchWord = word.dutch.toLowerCase();
+
+                if (dutchWord.endsWith('lijk') || dutchWord.endsWith('ig') || dutchWord.endsWith('baar')) {
+                    details.type = '形容词 (bijvoeglijk naamwoord)';
+
+                    details.examples = exampleDatabase.adjectives.default.map(ex => ({
+                        dutch: ex.dutch.replace('{adjective}', word.dutch),
+                        english: ex.english.replace('{english}', word.english)
+                    }));
+
+                } else if (dutchWord.endsWith('heid') || dutchWord.endsWith('ing') || dutchWord.endsWith('tie')) {
+                    details.type = '名词 (zelfstandig naamwoord)';
+
+                    details.examples = [
+                        { dutch: `De ${word.dutch} is belangrijk voor ons.`, english: `The ${word.english} is important for us.` },
+                        { dutch: `Ik begrijp de ${word.dutch} niet.`, english: `I don\'t understand the ${word.english}.` }
+                    ];
+
+                } else {
+                    // 基于主题生成更相关的例句
+                    const themeExamples = {
+                        1: [ // 基础
+                            { dutch: `${word.dutch} is een basiswoord.`, english: `${word.english} is a basic word.` },
+                            { dutch: `Ik gebruik ${word.dutch} vaak.`, english: `I use ${word.english} often.` }
+                        ],
+                        2: [ // 食物
+                            { dutch: `Ik hou van ${word.dutch}.`, english: `I like ${word.english}.` },
+                            { dutch: `${word.dutch} is lekker.`, english: `${word.english} is delicious.` }
+                        ],
+                        6: [ // 交通
+                            { dutch: `Ik ga met ${word.dutch}.`, english: `I go by ${word.english}.` },
+                            { dutch: `${word.dutch} is handig.`, english: `${word.english} is convenient.` }
+                        ],
+                        7: [ // 健康
+                            { dutch: `${word.dutch} is goed voor je gezondheid.`, english: `${word.english} is good for your health.` }
+                        ]
+                    };
+
+                    details.type = '其他';
+                    details.examples = themeExamples[word.theme] || [
+                        { dutch: `Dit is ${word.dutch}.`, english: `This is ${word.english}.` },
+                        { dutch: `Ik heb ${word.dutch} nodig.`, english: `I need ${word.english}.` }
+                    ];
+                }
+            }
+
+            // 添加相关词汇（基于主题）
+            const relatedWords = vocabulary
+                .filter(w => w.theme === word.theme && w.dutch !== word.dutch)
+                .slice(0, 5)
+                .map(w => w.dutch);
+            details.related = relatedWords;
+
+            return details;
+        }
+
         // 关闭模态框（确保是全局函数）
         window.closeRandomModal = function() {
             const modal = document.getElementById('randomModal');
@@ -1327,8 +2613,19 @@
 
         // 全局键盘事件监听器（在initRandomModal外部）
         document.addEventListener('keydown', function(e) {
-            const modal = document.getElementById('randomModal');
-            if (modal && modal.classList.contains('active')) {
+            // 处理详细信息模态框
+            const detailModal = document.getElementById('detailModal');
+            if (detailModal && detailModal.classList.contains('active')) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeDetailModal();
+                    return;
+                }
+            }
+
+            // 处理随机学习模态框
+            const randomModal = document.getElementById('randomModal');
+            if (randomModal && randomModal.classList.contains('active')) {
                 if (e.key === 'Escape') {
                     e.preventDefault();
                     closeRandomModal();
