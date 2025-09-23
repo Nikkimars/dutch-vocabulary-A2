@@ -905,6 +905,160 @@
                 opacity: 1;
             }
         }
+        /* 登录和同步状态样式 */
+        .auth-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .sync-icon {
+            font-size: 16px;
+        }
+
+        .user-email {
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .login-btn, .logout-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover, .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* 登录模态框 */
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-modal.active {
+            display: flex;
+        }
+
+        .login-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #333;
+        }
+
+        .login-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .login-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .login-close:hover {
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .auth-section {
+                position: static;
+                margin-top: 10px;
+                justify-content: center;
+            }
+
+            .login-content {
+                padding: 30px 20px;
+                width: 95%;
+            }
+        }
     </style>
 
     <!-- PWA 支持 -->
@@ -912,6 +1066,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Dutch A2">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+
     <script>
         // 注册 Service Worker
         if ('serviceWorker' in navigator) {
@@ -924,6 +1082,15 @@
         <header>
             <h1>🇳🇱 荷兰语A2词汇学习系统</h1>
             <div class="subtitle">LINK+ 0→A2 完整词汇表 - 点击卡片查看英文释义</div>
+            <div class="auth-section">
+                <div id="syncIndicator" class="sync-indicator">
+                    <span class="sync-icon">💾</span>
+                    <span class="sync-text">本地存储</span>
+                </div>
+                <div id="authStatus">
+                    <button onclick="showLoginModal()" class="login-btn">登录同步</button>
+                </div>
+            </div>
         </header>
 
         <div class="controls">
@@ -1358,6 +1525,17 @@
             // 先加载保存的数据
             StorageManager.loadLearnedWords();
             StorageManager.loadPreferences();
+
+            // 初始化 Supabase
+            if (typeof SyncManager !== 'undefined') {
+                SyncManager.init();
+                // 检查是否已登录
+                SyncManager.checkAuth().then(user => {
+                    if (user) {
+                        console.log('Already logged in as:', user.email);
+                    }
+                });
+            }
 
             // 初始化发音功能
             SpeechManager.init();
@@ -2856,6 +3034,11 @@
             // 保存状态
             StorageManager.saveLearnedWords();
 
+            // 如果已登录，同步到云端
+            if (typeof SyncManager !== 'undefined') {
+                SyncManager.scheduleSave();
+            }
+
             // 更新统计
             updateStats();
 
@@ -3593,6 +3776,12 @@
             }
 
             StorageManager.saveLearnedWords();
+
+            // 如果已登录，同步到云端
+            if (typeof SyncManager !== 'undefined') {
+                SyncManager.scheduleSave();
+            }
+
             updateStats();
 
             // 更新按钮显示
@@ -3801,6 +3990,12 @@
             if (confirm('确定要重置掌握进度吗？')) {
                 learnedWords.clear();
                 StorageManager.saveLearnedWords();
+
+                // 如果已登录，同步到云端
+                if (typeof SyncManager !== 'undefined') {
+                    SyncManager.scheduleSave();
+                }
+
                 updateStats();
 
                 // 移除已学习样式
@@ -3950,6 +4145,27 @@
         // 启动应用
         init();
     </script>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-content">
+            <button class="login-close" onclick="hideLoginModal()">×</button>
+            <div class="login-title">登录同步</div>
+            <div class="login-subtitle">输入邮箱，我们会发送登录链接给你</div>
+            <form onsubmit="handleLogin(event); return false;">
+                <input
+                    type="email"
+                    id="emailInput"
+                    class="email-input"
+                    placeholder="your@email.com"
+                    required
+                >
+                <button type="submit" id="loginBtn" class="login-submit">
+                    发送登录链接
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- 语法规则来源说明 -->
     <div style="position: fixed; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.9); padding: 8px 12px; border-radius: 5px; font-size: 11px; color: #666; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
