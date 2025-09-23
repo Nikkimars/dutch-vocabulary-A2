@@ -563,6 +563,7 @@
         .vocabulary-table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .vocabulary-table th {
@@ -639,6 +640,35 @@
 
             .vocabulary-table {
                 font-size: 14px;
+                min-width: 100%;
+            }
+
+            .vocabulary-table th:first-child,
+            .vocabulary-table td:first-child {
+                width: 45%;
+                word-wrap: break-word;
+            }
+
+            .vocabulary-table th:nth-child(2),
+            .vocabulary-table td:nth-child(2) {
+                width: 45%;
+                word-wrap: break-word;
+            }
+
+            .vocabulary-table th:last-child,
+            .vocabulary-table td:last-child {
+                width: 10%;
+            }
+
+            .vocabulary-table td {
+                padding: 10px 8px;
+            }
+
+            .list-view {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -10px;
+                padding: 0 10px;
             }
 
             .detail-modal {
@@ -1147,8 +1177,7 @@
                         <tr>
                             <th>荷兰语</th>
                             <th>英文</th>
-                            <th>主题</th>
-                            <th style="width: 50px; text-align: center;">操作</th>
+                            <th style="width: 50px; text-align: center;">更多</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -1893,7 +1922,6 @@
                 row.innerHTML = `
                     <td><strong>${word.dutch}</strong>${grammarInfo}</td>
                     <td><span style="color: #999; font-style: italic;">${wordType}</span> ${word.english}</td>
-                    <td><span class="theme-badge">主题 ${word.theme}</span></td>
                     <td style="text-align: center;">
                         <button class="more-btn" onclick="showDetailModal({dutch: '${word.dutch.replace(/'/g, "\\'")}', english: '${word.english.replace(/'/g, "\\'")}', theme: ${word.theme}, task: ${word.task || 1}})" title="更多信息">⋯</button>
                     </td>
