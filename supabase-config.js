@@ -165,7 +165,9 @@ const SyncManager = {
 
             const { error } = await supabaseClient
                 .from('progress')
-                .upsert(progressData);
+                .upsert(progressData, {
+                    onConflict: 'user_id'
+                });
 
             if (error) throw error;
 
