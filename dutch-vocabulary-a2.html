@@ -1847,13 +1847,13 @@
                 };
             }
 
-            // 移除点击翻转功能，改为点击查看详情
+            // 卡片点击事件 - 翻转显示
             card.onclick = function(e) {
                 // 如果点击的是发音按钮或更多按钮，不执行默认操作
                 if (e.target.classList.contains('speak-btn') || e.target.classList.contains('more-btn')) return;
 
-                // 点击卡片也打开详细信息
-                showDetailModal(word);
+                // 切换翻转状态
+                card.classList.toggle('flipped');
             };
 
             return card;

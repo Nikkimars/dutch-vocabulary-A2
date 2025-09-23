@@ -174,6 +174,11 @@ const SyncManager = {
         } catch (error) {
             console.error('Save to cloud error:', error);
             this.showSyncStatus('error');
+
+            // 显示用户友好的错误提示
+            if (error.message && error.message.includes('not authenticated')) {
+                console.log('User not authenticated, please login again');
+            }
         } finally {
             this.isSyncing = false;
         }
@@ -276,6 +281,26 @@ const SyncManager = {
         } catch (error) {
             console.error('Check auth error:', error);
             return null;
+        }
+    },
+
+    // 测试数据库连接
+    async testConnection() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('progress')
+                .select('count', { count: 'exact', head: true });
+
+            if (error) {
+                console.error('Database connection test failed:', error);
+                return false;
+            }
+
+            console.log('Database connection successful');
+            return true;
+        } catch (error) {
+            console.error('Connection test error:', error);
+            return false;
         }
     }
 };
