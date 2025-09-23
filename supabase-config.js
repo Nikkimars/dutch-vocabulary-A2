@@ -104,10 +104,15 @@ const SyncManager = {
         try {
             this.showSyncStatus('syncing');
 
+            // 使用 GitHub Pages URL 作为重定向地址
+            const redirectUrl = window.location.protocol === 'file:'
+                ? 'https://nikkimars.github.io/dutch-vocabulary-A2/dutch-vocabulary-a2.html'
+                : window.location.origin + window.location.pathname;
+
             const { data, error } = await supabaseClient.auth.signInWithOtp({
                 email: email,
                 options: {
-                    emailRedirectTo: window.location.origin + window.location.pathname
+                    emailRedirectTo: redirectUrl
                 }
             });
 
