@@ -623,6 +623,106 @@
             transform: scale(1.1);
         }
 
+        /* 学习计划样式 */
+        .study-plan-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .study-plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .study-plan-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .plan-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .days-input, .day-input {
+            width: 60px;
+            padding: 5px 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .plan-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .plan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .plan-btn.secondary {
+            background: #95a5a6;
+        }
+
+        .plan-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .plan-stat {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .plan-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .plan-value {
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .day-range-selector {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .day-range-selector label {
+            color: #666;
+            font-size: 14px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -1149,6 +1249,51 @@
                 <button class="mode-btn" data-mode="random">随机学习</button>
             </div>
 
+            <!-- 学习计划区域 -->
+            <div class="study-plan-section">
+                <div class="study-plan-header">
+                    <h3>📅 学习计划</h3>
+                    <div class="plan-controls">
+                        <label>学习天数：</label>
+                        <input type="number" id="studyDaysInput" min="7" max="90" value="30" class="days-input">
+                        <button class="plan-btn" onclick="StudyPlanManager.startPlan()">开始计划</button>
+                        <button class="plan-btn secondary" onclick="StudyPlanManager.resetPlan()">重置</button>
+                    </div>
+                </div>
+                <div class="plan-info" id="planInfo" style="display: none;">
+                    <div class="plan-stat">
+                        <span class="plan-label">当前进度：</span>
+                        <span class="plan-value">第 <span id="currentDay">1</span> 天 / 共 <span id="totalDays">30</span> 天</span>
+                    </div>
+                    <div class="plan-stat">
+                        <span class="plan-label">今日目标：</span>
+                        <span class="plan-value"><span id="todayLearned">0</span> / <span id="todayTarget">63</span> 个</span>
+                    </div>
+                    <div class="plan-stat">
+                        <span class="plan-label">总体进度：</span>
+                        <span class="plan-value"><span id="planProgress">0</span>%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 按天筛选 -->
+            <div class="filter-section" id="dayFilterSection" style="display: none;">
+                <span class="filter-label">按天筛选：</span>
+                <div class="filter-buttons" id="dayFilters">
+                    <button class="filter-btn active" onclick="StudyPlanManager.filterByDay('all')">全部</button>
+                    <button class="filter-btn" onclick="StudyPlanManager.filterByDay('today')">今天</button>
+                    <button class="filter-btn" onclick="StudyPlanManager.filterByDay('range')">选择范围</button>
+                </div>
+                <div class="day-range-selector" id="dayRangeSelector" style="display: none;">
+                    <label>从第</label>
+                    <input type="number" id="dayRangeStart" min="1" max="90" value="1" class="day-input">
+                    <label>天到第</label>
+                    <input type="number" id="dayRangeEnd" min="1" max="90" value="7" class="day-input">
+                    <label>天</label>
+                    <button class="filter-btn" onclick="StudyPlanManager.applyDayRange()">应用</button>
+                </div>
+            </div>
+
             <div class="search-section">
                 <input type="text" class="search-box" id="searchBox" placeholder="搜索荷兰语或英文单词...">
                 <button class="filter-btn" onclick="clearSearch()">清空</button>
@@ -1228,6 +1373,258 @@
         let currentFilter = 'all';
         let currentLetter = 'all';
         let currentMode = 'cards';
+        let currentDayFilter = 'all'; // 新增：当前天数筛选
+
+        // 学习计划管理器
+        const StudyPlanManager = {
+            totalDays: 30,
+            wordsPerDay: 0,
+            startDate: null,
+            currentDay: 1,
+            dayAssignments: {},
+            isActive: false,
+            dayRange: { start: 1, end: 7 },
+
+            // 初始化或加载保存的计划
+            init() {
+                const saved = localStorage.getItem('dutchA2_studyPlan');
+                if (saved) {
+                    const plan = JSON.parse(saved);
+                    Object.assign(this, plan);
+                    if (this.isActive) {
+                        this.updateCurrentDay();
+                        this.showPlanInfo();
+                        document.getElementById('dayFilterSection').style.display = 'block';
+                    }
+                }
+            },
+
+            // 开始新计划
+            startPlan() {
+                const daysInput = document.getElementById('studyDaysInput');
+                const days = parseInt(daysInput.value);
+
+                if (days < 7 || days > 90) {
+                    alert('请输入7-90之间的天数');
+                    return;
+                }
+
+                this.totalDays = days;
+                this.wordsPerDay = Math.ceil(vocabulary.length / days);
+                this.startDate = new Date().toISOString().split('T')[0];
+                this.currentDay = 1;
+                this.isActive = true;
+
+                // 分配单词到每天
+                this.assignWordsTodays();
+
+                // 显示计划信息
+                this.showPlanInfo();
+
+                // 显示天数筛选
+                document.getElementById('dayFilterSection').style.display = 'block';
+
+                // 生成天数按钮
+                this.generateDayButtons();
+
+                // 保存计划
+                this.savePlan();
+
+                alert(`学习计划已启动！\\n总共${days}天，每天约${this.wordsPerDay}个单词`);
+
+                // 应用今天的筛选
+                this.filterByDay('today');
+            },
+
+            // 分配单词到每天
+            assignWordsTodays() {
+                this.dayAssignments = {};
+                const shuffled = [...vocabulary].sort(() => Math.random() - 0.5);
+
+                for (let day = 1; day <= this.totalDays; day++) {
+                    const start = (day - 1) * this.wordsPerDay;
+                    const end = Math.min(start + this.wordsPerDay, shuffled.length);
+                    this.dayAssignments[day] = shuffled.slice(start, end).map(w => w.dutch);
+                }
+            },
+
+            // 更新当前天数
+            updateCurrentDay() {
+                if (!this.startDate) return;
+
+                const start = new Date(this.startDate);
+                const today = new Date();
+                const diffTime = today - start;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                this.currentDay = Math.min(Math.max(1, diffDays), this.totalDays);
+            },
+
+            // 显示计划信息
+            showPlanInfo() {
+                document.getElementById('planInfo').style.display = 'flex';
+                document.getElementById('currentDay').textContent = this.currentDay;
+                document.getElementById('totalDays').textContent = this.totalDays;
+                document.getElementById('todayTarget').textContent = this.wordsPerDay;
+
+                // 计算今日已学习
+                const todayWords = this.dayAssignments[this.currentDay] || [];
+                const todayLearned = todayWords.filter(word => learnedWords.has(word)).length;
+                document.getElementById('todayLearned').textContent = todayLearned;
+
+                // 计算总体进度
+                const planProgress = Math.round((this.currentDay / this.totalDays) * 100);
+                document.getElementById('planProgress').textContent = planProgress;
+            },
+
+            // 更新计划统计（实时更新）
+            updatePlanStats() {
+                if (!this.isActive) return;
+
+                // 计算今日已学习
+                const todayWords = this.dayAssignments[this.currentDay] || [];
+                const todayLearned = todayWords.filter(word => learnedWords.has(word)).length;
+                const todayLearnedEl = document.getElementById('todayLearned');
+                if (todayLearnedEl) {
+                    todayLearnedEl.textContent = todayLearned;
+                }
+            },
+
+            // 生成天数按钮
+            generateDayButtons() {
+                const container = document.getElementById('dayFilters');
+
+                // 保留前三个按钮（全部、今天、选择范围）
+                const existingButtons = container.querySelectorAll('.filter-btn').length;
+                if (existingButtons <= 3) {
+                    // 添加快速选择按钮
+                    for (let i = 1; i <= Math.min(7, this.totalDays); i++) {
+                        const btn = document.createElement('button');
+                        btn.className = 'filter-btn';
+                        btn.textContent = `第${i}天`;
+                        btn.onclick = () => this.filterByDay(i);
+                        container.appendChild(btn);
+                    }
+                }
+            },
+
+            // 按天筛选
+            filterByDay(day) {
+                currentDayFilter = day;
+
+                // 更新按钮状态
+                document.querySelectorAll('#dayFilters .filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+
+                if (day === 'all') {
+                    document.querySelector('#dayFilters .filter-btn').classList.add('active');
+                    document.getElementById('dayRangeSelector').style.display = 'none';
+                } else if (day === 'today') {
+                    document.querySelectorAll('#dayFilters .filter-btn')[1].classList.add('active');
+                    document.getElementById('dayRangeSelector').style.display = 'none';
+                    currentDayFilter = this.currentDay;
+                } else if (day === 'range') {
+                    document.querySelectorAll('#dayFilters .filter-btn')[2].classList.add('active');
+                    document.getElementById('dayRangeSelector').style.display = 'block';
+                    return; // 等待用户应用范围
+                } else if (typeof day === 'number') {
+                    // 找到对应的天数按钮
+                    const dayBtn = Array.from(document.querySelectorAll('#dayFilters .filter-btn'))
+                        .find(btn => btn.textContent === `第${day}天`);
+                    if (dayBtn) dayBtn.classList.add('active');
+                    document.getElementById('dayRangeSelector').style.display = 'none';
+                }
+
+                // 应用筛选
+                displayVocabulary();
+
+                // 更新统计
+                if (this.isActive && day !== 'all') {
+                    this.updatePlanStats();
+                }
+            },
+
+            // 应用天数范围
+            applyDayRange() {
+                const start = parseInt(document.getElementById('dayRangeStart').value);
+                const end = parseInt(document.getElementById('dayRangeEnd').value);
+
+                if (start < 1 || end > this.totalDays || start > end) {
+                    alert('请输入有效的天数范围');
+                    return;
+                }
+
+                this.dayRange = { start, end };
+                currentDayFilter = 'range';
+                displayVocabulary();
+            },
+
+            // 获取筛选后的单词
+            getFilteredWords() {
+                if (!this.isActive || currentDayFilter === 'all') {
+                    return vocabulary;
+                }
+
+                let wordsToShow = [];
+
+                if (currentDayFilter === 'range') {
+                    for (let day = this.dayRange.start; day <= this.dayRange.end; day++) {
+                        wordsToShow = wordsToShow.concat(this.dayAssignments[day] || []);
+                    }
+                } else {
+                    const day = typeof currentDayFilter === 'number' ? currentDayFilter : this.currentDay;
+                    wordsToShow = this.dayAssignments[day] || [];
+                }
+
+                return vocabulary.filter(word => wordsToShow.includes(word.dutch));
+            },
+
+            // 更新计划统计
+            updatePlanStats() {
+                if (!this.isActive) return;
+
+                const todayWords = this.dayAssignments[this.currentDay] || [];
+                const todayLearned = todayWords.filter(word => learnedWords.has(word)).length;
+                document.getElementById('todayLearned').textContent = todayLearned;
+            },
+
+            // 重置计划
+            resetPlan() {
+                if (!confirm('确定要重置学习计划吗？')) return;
+
+                this.isActive = false;
+                this.dayAssignments = {};
+                currentDayFilter = 'all';
+
+                document.getElementById('planInfo').style.display = 'none';
+                document.getElementById('dayFilterSection').style.display = 'none';
+
+                localStorage.removeItem('dutchA2_studyPlan');
+
+                displayVocabulary();
+                alert('学习计划已重置');
+            },
+
+            // 保存计划
+            savePlan() {
+                const planData = {
+                    totalDays: this.totalDays,
+                    wordsPerDay: this.wordsPerDay,
+                    startDate: this.startDate,
+                    currentDay: this.currentDay,
+                    dayAssignments: this.dayAssignments,
+                    isActive: this.isActive
+                };
+
+                localStorage.setItem('dutchA2_studyPlan', JSON.stringify(planData));
+
+                // 如果已登录，同步到云端
+                if (typeof SyncManager !== 'undefined') {
+                    SyncManager.scheduleSave();
+                }
+            }
+        };
 
         // 防抖函数
         function debounce(func, delay) {
@@ -1555,6 +1952,9 @@
             StorageManager.loadLearnedWords();
             StorageManager.loadPreferences();
 
+            // 初始化学习计划
+            StudyPlanManager.init();
+
             // 初始化 Supabase
             if (typeof SyncManager !== 'undefined') {
                 SyncManager.init();
@@ -1659,6 +2059,11 @@
         // 显示词汇
         function displayVocabulary() {
             let filtered = vocabulary;
+
+            // 应用学习计划筛选（优先级最高）
+            if (StudyPlanManager.isActive && currentDayFilter !== 'all') {
+                filtered = StudyPlanManager.getFilteredWords();
+            }
 
             // 应用主题筛选
             if (currentFilter !== 'all') {
@@ -3067,6 +3472,11 @@
                 SyncManager.scheduleSave();
             }
 
+            // 如果学习计划激活，更新计划统计
+            if (StudyPlanManager.isActive) {
+                StudyPlanManager.updatePlanStats();
+            }
+
             // 更新统计
             updateStats();
 
@@ -3702,15 +4112,84 @@
         function displayRandom(words) {
             if (words.length === 0) return;
 
-            currentRandomWords = words;
+            // 如果学习计划激活，提示选择学习范围
+            if (StudyPlanManager.isActive) {
+                showRandomRangeSelector(words);
+            } else {
+                currentRandomWords = words;
+                const modal = document.getElementById('randomModal');
+                showRandomWord();
+                modal.classList.add('active');
+            }
+        }
+
+        // 显示随机学习范围选择器
+        function showRandomRangeSelector(allWords) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'rangeSelector';
+
+            const totalDays = StudyPlanManager.totalDays;
+            const currentDay = StudyPlanManager.currentDay;
+
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px;">
+                    <h3 style="margin-bottom: 20px;">选择随机学习范围</h3>
+                    <div style="margin: 20px 0;">
+                        <label>从第几天：</label>
+                        <input type="number" id="rangeStart" min="1" max="${totalDays}" value="${Math.max(1, currentDay - 3)}"
+                               style="width: 80px; padding: 5px; margin: 0 10px;">
+                        <label>到第几天：</label>
+                        <input type="number" id="rangeEnd" min="1" max="${totalDays}" value="${Math.min(totalDays, currentDay + 3)}"
+                               style="width: 80px; padding: 5px; margin: 0 10px;">
+                    </div>
+                    <div style="margin: 20px 0; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
+                        <p>当前是第 ${currentDay} 天</p>
+                        <p style="margin-top: 5px; color: #666; font-size: 14px;">提示：可以选择复习前几天的单词或预习后几天的单词</p>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="random-btn primary" onclick="startRandomWithRange()">开始随机学习</button>
+                        <button class="random-btn secondary" onclick="document.getElementById('rangeSelector').remove()">取消</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        // 根据范围开始随机学习
+        window.startRandomWithRange = function() {
+            const startDay = parseInt(document.getElementById('rangeStart').value);
+            const endDay = parseInt(document.getElementById('rangeEnd').value);
+
+            if (startDay > endDay) {
+                alert('开始天数不能大于结束天数');
+                return;
+            }
+
+            // 获取指定范围的单词
+            const rangeWords = [];
+            for (let day = startDay; day <= endDay; day++) {
+                const dayWords = StudyPlanManager.dayAssignments[day] || [];
+                dayWords.forEach(dutchWord => {
+                    const word = vocabulary.find(w => w.dutch === dutchWord);
+                    if (word) rangeWords.push(word);
+                });
+            }
+
+            if (rangeWords.length === 0) {
+                alert('所选范围内没有单词');
+                return;
+            }
+
+            // 关闭范围选择器
+            document.getElementById('rangeSelector').remove();
+
+            // 开始随机学习
+            currentRandomWords = rangeWords;
             const modal = document.getElementById('randomModal');
-
-            // 显示随机单词
             showRandomWord();
-
-            // 显示模态框
             modal.classList.add('active');
-
         }
 
         // 当前随机单词
@@ -3808,6 +4287,11 @@
             // 如果已登录，同步到云端
             if (typeof SyncManager !== 'undefined') {
                 SyncManager.scheduleSave();
+            }
+
+            // 如果学习计划激活，更新计划统计
+            if (StudyPlanManager.isActive) {
+                StudyPlanManager.updatePlanStats();
             }
 
             updateStats();
