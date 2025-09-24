@@ -1384,6 +1384,7 @@
             dayAssignments: {},
             isActive: false,
             dayRange: { start: 1, end: 7 },
+            todayCompleted: false,
 
             // 初始化或加载保存的计划
             init() {
@@ -1457,7 +1458,13 @@
                 const diffTime = today - start;
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
+                const prevDay = this.currentDay;
                 this.currentDay = Math.min(Math.max(1, diffDays), this.totalDays);
+
+                // 如果进入新的一天，重置完成标记
+                if (prevDay !== this.currentDay) {
+                    this.todayCompleted = false;
+                }
             },
 
             // 显示计划信息
@@ -3475,6 +3482,15 @@
             // 如果学习计划激活，更新计划统计
             if (StudyPlanManager.isActive) {
                 StudyPlanManager.updatePlanStats();
+
+                // 检查是否达到今日目标
+                const todayWords = StudyPlanManager.dayAssignments[StudyPlanManager.currentDay] || [];
+                const todayLearned = todayWords.filter(word => learnedWords.has(word)).length;
+
+                if (todayLearned >= StudyPlanManager.wordsPerDay && !StudyPlanManager.todayCompleted) {
+                    StudyPlanManager.todayCompleted = true;
+                    showCompletionPopup();
+                }
             }
 
             // 更新统计
@@ -4105,6 +4121,66 @@
             displayVocabulary();
         }
 
+        // 显示达标完成弹窗
+        function showCompletionPopup() {
+            const popup = document.createElement('div');
+            popup.className = 'completion-popup';
+            popup.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 10002;
+                text-align: center;
+                animation: popupSlideIn 0.5s ease-out;
+            `;
+
+            popup.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 15px;">🎉</div>
+                <h2 style="margin: 0 0 10px 0; font-size: 24px;">今日目标达成！</h2>
+                <p style="margin: 10px 0; font-size: 16px; opacity: 0.95;">
+                    太棒了！你已完成今天的学习目标！<br>
+                    已掌握 ${StudyPlanManager.wordsPerDay} 个单词
+                </p>
+                <div style="margin-top: 20px;">
+                    <button onclick="this.parentElement.parentElement.remove()"
+                            style="background: white; color: #667eea; border: none; padding: 10px 30px;
+                                   border-radius: 25px; font-size: 16px; cursor: pointer; font-weight: bold;">
+                        继续加油 💪
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+
+            // 添加动画样式
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes popupSlideIn {
+                    from {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0.8);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 5秒后自动关闭
+            setTimeout(() => {
+                popup.style.animation = 'popupSlideIn 0.5s ease-out reverse';
+                setTimeout(() => popup.remove(), 500);
+            }, 5000);
+        }
+
         // 当前显示的随机单词集合
         let currentRandomWords = [];
 
@@ -4199,10 +4275,19 @@
         // 显示随机单词卡片
         function showRandomWord() {
             if (!currentRandomWords || currentRandomWords.length === 0) {
-                currentRandomWords = getFilteredWords();
+                currentRandomWords = getFilteredWords().filter(word => !learnedWords.has(word.dutch));
             }
 
-            currentRandomWord = currentRandomWords[Math.floor(Math.random() * currentRandomWords.length)];
+            // 过滤掉已掌握的单词
+            const unlearnedWords = currentRandomWords.filter(word => !learnedWords.has(word.dutch));
+            if (unlearnedWords.length === 0) {
+                alert('太棒了！当前范围内的单词都已掌握！');
+                closeRandomModal();
+                return;
+            }
+
+            currentRandomWord = unlearnedWords[Math.floor(Math.random() * unlearnedWords.length)];
+            todayReviewedCount++;
             const container = document.getElementById('randomCardContainer');
             const wordType = getWordTypeTag(currentRandomWord);
             isRandomCardFlipped = false;
@@ -4239,8 +4324,15 @@
                         关闭 (ESC)
                     </button>
                 </div>
-                <div style="margin-top: 10px; color: #999; font-size: 12px; text-align: center;">
-                    快捷键：空格翻转 | M键掌握 | 方向键切换
+                <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                    <div style="color: #fff; font-size: 14px; text-align: center; margin-bottom: 5px;">
+                        📚 今日已复习：<span style="font-weight: bold; font-size: 16px;">${todayReviewedCount}</span> 个单词
+                        ${StudyPlanManager.isActive && StudyPlanManager.wordsPerDay > 0 ?
+                            `<span style="margin-left: 10px;">目标：${StudyPlanManager.wordsPerDay} 个</span>` : ''}
+                    </div>
+                    <div style="color: #999; font-size: 12px; text-align: center;">
+                        快捷键：空格翻转 | M键掌握 | 方向键切换
+                    </div>
                 </div>
             `;
         }
@@ -4292,6 +4384,15 @@
             // 如果学习计划激活，更新计划统计
             if (StudyPlanManager.isActive) {
                 StudyPlanManager.updatePlanStats();
+
+                // 检查是否达到今日目标
+                const todayWords = StudyPlanManager.dayAssignments[StudyPlanManager.currentDay] || [];
+                const todayLearned = todayWords.filter(word => learnedWords.has(word)).length;
+
+                if (todayLearned >= StudyPlanManager.wordsPerDay && !StudyPlanManager.todayCompleted) {
+                    StudyPlanManager.todayCompleted = true;
+                    showCompletionPopup();
+                }
             }
 
             updateStats();
