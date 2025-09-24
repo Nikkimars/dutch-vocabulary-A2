@@ -4183,49 +4183,66 @@
 
         // 当前显示的随机单词集合
         let currentRandomWords = [];
+        // 今天复习的单词数
+        let todayReviewedCount = 0;
+        let sessionStartTime = Date.now();
 
         // 显示随机学习模态框
         function displayRandom(words) {
             if (words.length === 0) return;
 
-            // 如果学习计划激活，提示选择学习范围
-            if (StudyPlanManager.isActive) {
-                showRandomRangeSelector(words);
-            } else {
-                currentRandomWords = words;
-                const modal = document.getElementById('randomModal');
-                showRandomWord();
-                modal.classList.add('active');
+            // 过滤掉已掌握的单词
+            const unlearnedWords = words.filter(word => !learnedWords.has(word.dutch));
+            if (unlearnedWords.length === 0) {
+                alert('太棒了！所有单词都已掌握！');
+                return;
             }
+
+            // 显示主题选择器
+            showThemeSelector(unlearnedWords);
         }
 
-        // 显示随机学习范围选择器
-        function showRandomRangeSelector(allWords) {
+        // 显示主题选择器
+        function showThemeSelector(allWords) {
             const modal = document.createElement('div');
             modal.className = 'modal-overlay active';
-            modal.id = 'rangeSelector';
+            modal.id = 'themeSelector';
 
-            const totalDays = StudyPlanManager.totalDays;
-            const currentDay = StudyPlanManager.currentDay;
+            // 获取所有主题
+            const themes = [...new Set(allWords.map(w => w.theme))];
+            const themeNames = {
+                1: '日常生活', 2: '饮食文化', 3: '出行交通', 4: '健康医疗',
+                5: '教育学习', 6: '工作职业', 7: '休闲娱乐', 8: '社交关系',
+                9: '环境自然', 10: '时间日期', 11: '数字货币', 12: '思想情感'
+            };
 
             modal.innerHTML = `
-                <div class="modal-content" style="max-width: 500px;">
-                    <h3 style="margin-bottom: 20px;">选择随机学习范围</h3>
-                    <div style="margin: 20px 0;">
-                        <label>从第几天：</label>
-                        <input type="number" id="rangeStart" min="1" max="${totalDays}" value="${Math.max(1, currentDay - 3)}"
-                               style="width: 80px; padding: 5px; margin: 0 10px;">
-                        <label>到第几天：</label>
-                        <input type="number" id="rangeEnd" min="1" max="${totalDays}" value="${Math.min(totalDays, currentDay + 3)}"
-                               style="width: 80px; padding: 5px; margin: 0 10px;">
-                    </div>
-                    <div style="margin: 20px 0; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
-                        <p>当前是第 ${currentDay} 天</p>
-                        <p style="margin-top: 5px; color: #666; font-size: 14px;">提示：可以选择复习前几天的单词或预习后几天的单词</p>
+                <div class="modal-content" style="max-width: 600px;">
+                    <h3 style="margin-bottom: 20px;">选择学习主题</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0;">
+                        <button class="theme-select-btn" onclick="startRandomWithTheme('all')"
+                                style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                       color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            <div style="font-size: 18px; margin-bottom: 5px;">🎲</div>
+                            <div>全部主题</div>
+                            <div style="font-size: 12px; opacity: 0.8;">${allWords.length} 个单词</div>
+                        </button>
+                        ${themes.map(theme => {
+                            const themeWords = allWords.filter(w => w.theme === theme);
+                            return `
+                                <button class="theme-select-btn" onclick="startRandomWithTheme(${theme})"
+                                        style="padding: 15px; background: #f7f8fa; color: #333; border: 1px solid #e0e0e0;
+                                               border-radius: 8px; cursor: pointer; transition: all 0.3s;"
+                                        onmouseover="this.style.background='#e8eaf6'"
+                                        onmouseout="this.style.background='#f7f8fa'">
+                                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">${themeNames[theme]}</div>
+                                    <div style="font-size: 12px; color: #666;">${themeWords.length} 个单词</div>
+                                </button>
+                            `;
+                        }).join('')}
                     </div>
                     <div style="text-align: center; margin-top: 20px;">
-                        <button class="random-btn primary" onclick="startRandomWithRange()">开始随机学习</button>
-                        <button class="random-btn secondary" onclick="document.getElementById('rangeSelector').remove()">取消</button>
+                        <button class="random-btn secondary" onclick="document.getElementById('themeSelector').remove()">取消</button>
                     </div>
                 </div>
             `;
@@ -4233,36 +4250,33 @@
             document.body.appendChild(modal);
         }
 
-        // 根据范围开始随机学习
-        window.startRandomWithRange = function() {
-            const startDay = parseInt(document.getElementById('rangeStart').value);
-            const endDay = parseInt(document.getElementById('rangeEnd').value);
+        // 根据主题开始随机学习
+        window.startRandomWithTheme = function(themeFilter) {
+            // 获取筛选后的单词
+            let themeWords = getFilteredWords();
 
-            if (startDay > endDay) {
-                alert('开始天数不能大于结束天数');
+            if (themeFilter !== 'all') {
+                themeWords = themeWords.filter(w => w.theme === themeFilter);
+            }
+
+            // 过滤掉已掌握的单词
+            themeWords = themeWords.filter(word => !learnedWords.has(word.dutch));
+
+            if (themeWords.length === 0) {
+                alert('所选主题没有未掌握的单词');
                 return;
             }
 
-            // 获取指定范围的单词
-            const rangeWords = [];
-            for (let day = startDay; day <= endDay; day++) {
-                const dayWords = StudyPlanManager.dayAssignments[day] || [];
-                dayWords.forEach(dutchWord => {
-                    const word = vocabulary.find(w => w.dutch === dutchWord);
-                    if (word) rangeWords.push(word);
-                });
-            }
+            // 重置今日复习计数
+            todayReviewedCount = 0;
+            sessionStartTime = Date.now();
 
-            if (rangeWords.length === 0) {
-                alert('所选范围内没有单词');
-                return;
-            }
-
-            // 关闭范围选择器
-            document.getElementById('rangeSelector').remove();
+            // 关闭主题选择器
+            const selector = document.getElementById('themeSelector');
+            if (selector) selector.remove();
 
             // 开始随机学习
-            currentRandomWords = rangeWords;
+            currentRandomWords = themeWords;
             const modal = document.getElementById('randomModal');
             showRandomWord();
             modal.classList.add('active');
