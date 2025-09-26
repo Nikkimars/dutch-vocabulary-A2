@@ -1291,6 +1291,15 @@
             </div>
 
             <div class="filter-section">
+                <span class="filter-label">按掌握状态筛选：</span>
+                <div class="filter-buttons" id="masteryFilters">
+                    <button class="filter-btn active" data-mastery="all" onclick="filterByMastery('all')">全部单词</button>
+                    <button class="filter-btn" data-mastery="unlearned" onclick="filterByMastery('unlearned')">未掌握</button>
+                    <button class="filter-btn" data-mastery="learned" onclick="filterByMastery('learned')">已掌握</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
                 <span class="filter-label">按主题筛选：</span>
                 <div class="filter-buttons" id="themeFilters">
                     <button class="filter-btn active" data-theme="all" onclick="filterByTheme('all')">全部主题</button>
@@ -1377,6 +1386,7 @@
         let learnedWords = new Set();
         let currentFilter = 'all';
         let currentLetter = 'all';
+        let currentMastery = 'all';  // 新增：掌握状态筛选
         let currentMode = 'cards';
         let currentDayFilter = 'all'; // 新增：当前天数筛选
 
@@ -1850,6 +1860,7 @@
                     localStorage.setItem(this.KEYS.FILTER_THEME, currentFilter);
                     localStorage.setItem(this.KEYS.FILTER_LETTER, currentLetter);
                     localStorage.setItem(this.KEYS.VIEW_MODE, currentMode);
+                    localStorage.setItem('dutchA2_filterMastery', currentMastery);
                 } catch(e) {
                     console.error('Failed to save preferences:', e);
                 }
@@ -1860,10 +1871,12 @@
                     const savedTheme = localStorage.getItem(this.KEYS.FILTER_THEME);
                     const savedLetter = localStorage.getItem(this.KEYS.FILTER_LETTER);
                     const savedMode = localStorage.getItem(this.KEYS.VIEW_MODE);
+                    const savedMastery = localStorage.getItem('dutchA2_filterMastery');
 
                     if (savedTheme) currentFilter = savedTheme;
                     if (savedLetter) currentLetter = savedLetter;
                     if (savedMode) currentMode = savedMode;
+                    if (savedMastery) currentMastery = savedMastery;
                 } catch(e) {
                     console.error('Failed to load preferences:', e);
                 }
@@ -1912,6 +1925,16 @@
 
         // 恢复筛选状态
         function restoreFilterStates() {
+            // 恢复掌握状态筛选
+            if (currentMastery !== 'all') {
+                document.querySelectorAll('#masteryFilters .filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.mastery === currentMastery) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
             // 恢复主题筛选
             if (currentFilter !== 'all') {
                 document.querySelectorAll('#themeFilters .filter-btn').forEach(btn => {
@@ -1985,6 +2008,13 @@
             let filtered = vocabulary;
 
             // 学习计划激活时不需要筛选，所有单词都可以随机学习
+
+            // 应用掌握状态筛选
+            if (currentMastery === 'learned') {
+                filtered = filtered.filter(word => learnedWords.has(word.dutch));
+            } else if (currentMastery === 'unlearned') {
+                filtered = filtered.filter(word => !learnedWords.has(word.dutch));
+            }
 
             // 应用主题筛选
             if (currentFilter !== 'all') {
@@ -4100,17 +4130,14 @@
 
         // 显示随机学习模态框
         function displayRandom(words) {
-            if (words.length === 0) return;
-
-            // 过滤掉已掌握的单词
-            const unlearnedWords = words.filter(word => !learnedWords.has(word.dutch));
-            if (unlearnedWords.length === 0) {
-                alert('太棒了！所有单词都已掌握！');
+            if (words.length === 0) {
+                alert('没有符合筛选条件的单词！');
                 return;
             }
 
-            // 直接开始随机学习，不显示主题选择器
-            startRandomLearning(unlearnedWords);
+            // 不再自动过滤已掌握单词，因为用户可能想要复习
+            // 直接开始随机学习
+            startRandomLearning(words);
         }
 
         // 直接开始随机学习
@@ -4207,18 +4234,18 @@
         // 显示随机单词卡片
         function showRandomWord() {
             if (!currentRandomWords || currentRandomWords.length === 0) {
-                currentRandomWords = getFilteredWords().filter(word => !learnedWords.has(word.dutch));
+                // 获取筛选后的单词，不再自动过滤已掌握的
+                currentRandomWords = getFilteredWords();
             }
 
-            // 过滤掉已掌握的单词
-            const unlearnedWords = currentRandomWords.filter(word => !learnedWords.has(word.dutch));
-            if (unlearnedWords.length === 0) {
-                alert('太棒了！当前范围内的单词都已掌握！');
+            // 检查是否有单词
+            if (currentRandomWords.length === 0) {
+                alert('没有符合筛选条件的单词！');
                 closeRandomModal();
                 return;
             }
 
-            currentRandomWord = unlearnedWords[Math.floor(Math.random() * unlearnedWords.length)];
+            currentRandomWord = currentRandomWords[Math.floor(Math.random() * currentRandomWords.length)];
             todayReviewedCount++;
 
             // 记录查看的单词
@@ -4475,6 +4502,18 @@
         document.addEventListener('DOMContentLoaded', initRandomModal);
 
         // 筛选功能
+        function filterByMastery(mastery) {
+            document.querySelectorAll('#masteryFilters .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.mastery === mastery) {
+                    btn.classList.add('active');
+                }
+            });
+            currentMastery = mastery;
+            displayVocabulary();
+            StorageManager.savePreferences();
+        }
+
         function filterByTheme(theme) {
             document.querySelectorAll('#themeFilters .filter-btn').forEach(btn => {
                 btn.classList.remove('active');
