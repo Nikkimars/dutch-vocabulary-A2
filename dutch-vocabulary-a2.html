@@ -1666,20 +1666,51 @@
             loadVoices() {
                 this.voices = this.synth.getVoices();
 
-                // 查找荷兰语语音
+                // 优先顺序查找荷兰语语音
+                // 1. 精确匹配 nl-NL
                 this.dutchVoice = this.voices.find(voice =>
-                    voice.lang.includes('nl') || voice.lang.includes('NL')
+                    voice.lang === 'nl-NL' || voice.lang === 'nl_NL'
                 );
 
-                // 如果没有荷兰语，尝试使用默认语音
+                // 2. 如果没找到，查找包含 nl 的语音
+                if (!this.dutchVoice) {
+                    this.dutchVoice = this.voices.find(voice =>
+                        voice.lang.toLowerCase().startsWith('nl')
+                    );
+                }
+
+                // 3. Safari特殊处理：查找名称中包含 Dutch 的语音
+                if (!this.dutchVoice) {
+                    this.dutchVoice = this.voices.find(voice =>
+                        voice.name.toLowerCase().includes('dutch') ||
+                        voice.name.toLowerCase().includes('nederlands')
+                    );
+                }
+
+                // 4. 如果还是没有，使用英语语音（比默认语音效果好）
+                if (!this.dutchVoice) {
+                    this.dutchVoice = this.voices.find(voice =>
+                        voice.lang.startsWith('en')
+                    );
+                }
+
+                // 5. 最后才使用默认语音
                 if (!this.dutchVoice && this.voices.length > 0) {
                     this.dutchVoice = this.voices[0];
                 }
+
+                console.log('Available voices:', this.voices.map(v => `${v.name} (${v.lang})`));
+                console.log('Selected Dutch voice:', this.dutchVoice ? `${this.dutchVoice.name} (${this.dutchVoice.lang})` : 'None');
             },
 
             speak(text) {
                 // 停止之前的发音
                 this.synth.cancel();
+
+                // 如果语音列表为空，重新加载
+                if (this.voices.length === 0) {
+                    this.loadVoices();
+                }
 
                 const utterance = new SpeechSynthesisUtterance(text);
 
@@ -1691,8 +1722,9 @@
                     utterance.voice = this.dutchVoice;
                 }
 
-                // 调整语速和音调
-                utterance.rate = 0.9;
+                // 针对Safari优化：降低语速，提高清晰度
+                const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                utterance.rate = isSafari ? 0.8 : 0.9;
                 utterance.pitch = 1.0;
                 utterance.volume = 1.0;
 
@@ -4024,7 +4056,7 @@
                 <h2 style="margin: 0 0 10px 0; font-size: 24px;">今日目标达成！</h2>
                 <p style="margin: 10px 0; font-size: 16px; opacity: 0.95;">
                     太棒了！你已完成今天的学习目标！<br>
-                    已掌握 ${StudyPlanManager.wordsPerDay} 个单词
+                    已学习 ${StudyPlanManager.wordsPerDay} 个单词
                 </p>
                 <div style="margin-top: 20px;">
                     <button onclick="this.parentElement.parentElement.remove()"
