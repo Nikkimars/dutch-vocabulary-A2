@@ -733,6 +733,14 @@
                 gap: 10px;
             }
 
+            /* 移动端调整今日学习统计显示 */
+            #viewedWordsDisplay {
+                font-size: 14px !important;
+                padding: 6px 12px !important;
+                top: 10px !important;
+                left: 10px !important;
+            }
+
             h1 {
                 font-size: 1.5em;
                 padding: 15px;
@@ -1344,6 +1352,20 @@
     <div id="randomModal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" id="modalCloseBtn">×</button>
+            <!-- 今日学习统计 -->
+            <div id="viewedWordsDisplay" style="
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+                background: rgba(0,0,0,0.3);
+                padding: 8px 16px;
+                border-radius: 20px;
+                z-index: 10001;">
+                今日已学习: 0 个单词
+            </div>
             <div id="randomCardContainer"></div>
         </div>
     </div>
@@ -1666,17 +1688,7 @@
 
                 // 只在卡片模式下启用导航
                 if (currentMode !== 'cards' || this.cards.length === 0) {
-                    // 但是在随机模式下也处理空格和方向键
-                    if (currentMode === 'random' && document.getElementById('randomModal').classList.contains('active')) {
-                        if (e.key === ' ' || e.key === 'Enter') {
-                            e.preventDefault();
-                            const card = document.getElementById('currentRandomCard');
-                            if (card) card.classList.toggle('flipped');
-                        } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-                            e.preventDefault();
-                            showRandomWord();
-                        }
-                    }
+                    // 随机模式的键盘事件已经在全局事件监听器中处理了，这里不需要重复处理
                     return;
                 }
 
@@ -2064,7 +2076,7 @@
         }
 
         // 显示词汇
-        function displayVocabulary() {
+        function displayVocabulary(forceRandomDisplay = false) {
             let filtered = vocabulary;
 
             // 应用学习计划筛选（优先级最高）
@@ -2096,7 +2108,13 @@
             } else if (currentMode === 'list') {
                 displayList(filtered);
             } else if (currentMode === 'random') {
-                displayRandom(filtered);
+                // 只有在明确要求显示随机学习（点击随机学习按钮）时才显示主题选择器
+                if (forceRandomDisplay) {
+                    displayRandom(filtered);
+                } else {
+                    // 否则显示卡片模式
+                    displayCards(filtered);
+                }
             }
 
             document.getElementById('filteredWords').textContent = filtered.length;
@@ -4198,93 +4216,95 @@
                 return;
             }
 
-            // 显示主题选择器
-            showThemeSelector(unlearnedWords);
+            // 直接开始随机学习，不显示主题选择器
+            startRandomLearning(unlearnedWords);
         }
 
-        // 显示主题选择器
-        function showThemeSelector(allWords) {
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay active';
-            modal.id = 'themeSelector';
-
-            // 获取所有主题
-            const themes = [...new Set(allWords.map(w => w.theme))];
-            const themeNames = {
-                1: '日常生活', 2: '饮食文化', 3: '出行交通', 4: '健康医疗',
-                5: '教育学习', 6: '工作职业', 7: '休闲娱乐', 8: '社交关系',
-                9: '环境自然', 10: '时间日期', 11: '数字货币', 12: '思想情感'
-            };
-
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 600px;">
-                    <h3 style="margin-bottom: 20px;">选择学习主题</h3>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0;">
-                        <button class="theme-select-btn" onclick="startRandomWithTheme('all')"
-                                style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                       color: white; border: none; border-radius: 8px; cursor: pointer;">
-                            <div style="font-size: 18px; margin-bottom: 5px;">🎲</div>
-                            <div>全部主题</div>
-                            <div style="font-size: 12px; opacity: 0.8;">${allWords.length} 个单词</div>
-                        </button>
-                        ${themes.map(theme => {
-                            const themeWords = allWords.filter(w => w.theme === theme);
-                            return `
-                                <button class="theme-select-btn" onclick="startRandomWithTheme(${theme})"
-                                        style="padding: 15px; background: #f7f8fa; color: #333; border: 1px solid #e0e0e0;
-                                               border-radius: 8px; cursor: pointer; transition: all 0.3s;"
-                                        onmouseover="this.style.background='#e8eaf6'"
-                                        onmouseout="this.style.background='#f7f8fa'">
-                                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">${themeNames[theme]}</div>
-                                    <div style="font-size: 12px; color: #666;">${themeWords.length} 个单词</div>
-                                </button>
-                            `;
-                        }).join('')}
-                    </div>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button class="random-btn secondary" onclick="document.getElementById('themeSelector').remove()">取消</button>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(modal);
-        }
-
-        // 根据主题开始随机学习
-        window.startRandomWithTheme = function(themeFilter) {
-            // 获取筛选后的单词
-            let themeWords = getFilteredWords();
-
-            if (themeFilter !== 'all') {
-                themeWords = themeWords.filter(w => w.theme === themeFilter);
-            }
-
-            // 过滤掉已掌握的单词
-            themeWords = themeWords.filter(word => !learnedWords.has(word.dutch));
-
-            if (themeWords.length === 0) {
-                alert('所选主题没有未掌握的单词');
-                return;
-            }
-
+        // 直接开始随机学习
+        function startRandomLearning(words) {
             // 重置今日复习计数
             todayReviewedCount = 0;
             sessionStartTime = Date.now();
 
-            // 关闭主题选择器
-            const selector = document.getElementById('themeSelector');
-            if (selector) selector.remove();
-
             // 开始随机学习
-            currentRandomWords = themeWords;
+            currentRandomWords = words;
             const modal = document.getElementById('randomModal');
+
+            // 确保统计显示元素存在并可见
+            const viewedDisplay = document.getElementById('viewedWordsDisplay');
+            if (viewedDisplay) {
+                viewedDisplay.style.display = 'block';  // 确保显示
+            }
+
+            // 确保统计显示是最新的
+            updateViewedWordsDisplay();
+
             showRandomWord();
             modal.classList.add('active');
         }
 
+
         // 当前随机单词
         let currentRandomWord = null;
         let isRandomCardFlipped = false;
+
+        // 今日查看的单词追踪
+        let todayViewedWords = new Set();
+        let viewedWordsToday = 0;
+
+        // 获取今天的日期键
+        function getTodayKey() {
+            const today = new Date();
+            return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+        }
+
+        // 初始化今日查看记录
+        function initDailyViewedWords() {
+            const todayKey = getTodayKey();
+            const stored = localStorage.getItem('dailyViewedWords');
+
+            if (stored) {
+                const data = JSON.parse(stored);
+                // 检查是否是今天的数据
+                if (data.date === todayKey) {
+                    todayViewedWords = new Set(data.words);
+                    viewedWordsToday = todayViewedWords.size;
+                } else {
+                    // 新的一天，重置数据
+                    todayViewedWords = new Set();
+                    viewedWordsToday = 0;
+                    saveDailyViewedWords();
+                }
+            }
+        }
+
+        // 保存今日查看记录
+        function saveDailyViewedWords() {
+            const todayKey = getTodayKey();
+            const data = {
+                date: todayKey,
+                words: Array.from(todayViewedWords)
+            };
+            localStorage.setItem('dailyViewedWords', JSON.stringify(data));
+        }
+
+        // 记录查看的单词
+        function recordViewedWord(dutchWord) {
+            if (!todayViewedWords.has(dutchWord)) {
+                todayViewedWords.add(dutchWord);
+                viewedWordsToday = todayViewedWords.size;
+                saveDailyViewedWords();
+                updateViewedWordsDisplay();
+            }
+        }
+
+        // 更新查看统计显示
+        function updateViewedWordsDisplay() {
+            const display = document.getElementById('viewedWordsDisplay');
+            if (display) {
+                display.textContent = `今日已学习: ${viewedWordsToday} 个单词`;
+            }
+        }
 
         // 显示随机单词卡片
         function showRandomWord() {
@@ -4302,6 +4322,10 @@
 
             currentRandomWord = unlearnedWords[Math.floor(Math.random() * unlearnedWords.length)];
             todayReviewedCount++;
+
+            // 记录查看的单词
+            recordViewedWord(currentRandomWord.dutch);
+
             const container = document.getElementById('randomCardContainer');
             const wordType = getWordTypeTag(currentRandomWord);
             isRandomCardFlipped = false;
@@ -4331,10 +4355,10 @@
                 </div>
 
                 <div class="random-controls">
-                    <button class="random-btn primary" id="nextWordBtn" onclick="showRandomWord()">
+                    <button class="random-btn primary" id="nextWordBtn">
                         下一个单词 (→)
                     </button>
-                    <button class="random-btn secondary" id="closeBtn" onclick="closeRandomModal()">
+                    <button class="random-btn secondary" id="closeBtn">
                         关闭 (ESC)
                     </button>
                 </div>
@@ -4429,8 +4453,11 @@
                 }
             }
 
-            // 更新主界面显示
-            displayVocabulary();
+            // 只有在非随机模式下才更新主界面
+            // 随机模式下不需要重新渲染，避免重复弹出选择器
+            if (currentMode !== 'random') {
+                displayVocabulary();
+            }
         }
 
         // 获取当前筛选的单词
@@ -4459,6 +4486,16 @@
 
         // 初始化事件处理
         function initRandomModal() {
+            // 初始化今日查看记录
+            initDailyViewedWords();
+
+            // 确保显示元素存在并更新
+            const viewedDisplay = document.getElementById('viewedWordsDisplay');
+            if (viewedDisplay) {
+                viewedDisplay.style.display = 'block';
+            }
+            updateViewedWordsDisplay();
+
             const modal = document.getElementById('randomModal');
 
             // 事件委托处理模态框内的点击事件
@@ -4579,12 +4616,18 @@
                 btn.onclick = function() {
                     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
+                    const previousMode = currentMode;
                     currentMode = this.dataset.mode;
 
                     document.getElementById('cardsView').style.display = currentMode === 'list' ? 'none' : 'grid';
                     document.getElementById('listView').style.display = currentMode === 'list' ? 'block' : 'none';
 
-                    displayVocabulary();
+                    // 如果切换到随机模式，显示主题选择器
+                    if (currentMode === 'random' && previousMode !== 'random') {
+                        displayVocabulary(true);  // 传入true表示要显示随机学习
+                    } else {
+                        displayVocabulary();
+                    }
                     StorageManager.savePreferences();
                 };
             });
